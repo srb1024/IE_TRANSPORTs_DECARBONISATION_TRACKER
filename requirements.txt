@@ -1,1 +1,15 @@
-pandas
+# Core data processing (preprocessing pipeline — notebooks 00–01)
+pandas>=2.0
+numpy>=1.24
+
+# Time-series modelling (notebook 03 — predictive analytics)
+statsmodels>=0.14
+pmdarima>=2.0
+scipy>=1.11
+
+# Visualisation (notebooks 02–04)
+matplotlib>=3.7
+seaborn>=0.13
+
+# API / data acquisition (notebook 00)
+requests>=2.31
