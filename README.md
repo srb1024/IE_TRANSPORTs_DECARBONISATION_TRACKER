@@ -20,6 +20,43 @@ into an annual fact table with the three composite KPIs and writes everything to
 
 Requirements: `pandas>=2.0`, `numpy>=1.24` (see `requirements.txt`).
 
+## Repository structure
+
+```
+.
+README.md
+requirements.txt
+dashboard/
+  exports/
+  powerbi/
+data/
+  external/
+  interim/
+  processed/
+  raw/
+    NaPTAN_Stop_Points.csv
+    PEA01.20260528T000539 2018-2025.csv
+    TEM12.20260527T230534 2015-2026.csv
+    TEM22.20260528T010512 2019-2021.csv
+    TEM23.20260528T000533 2022-2026.csv
+    THA17.20260528T000501 2018-2023.csv
+    THA18.20260528T000504 2018-2023.csv
+    THA25.20260528T000529 2019-2025.csv
+    TOA11.20260528T000523 2018-2025.csv
+docs/
+  DATA_DICTIONARY.md
+  DATA_QUALITY_REPORT.md
+  METHODOLOGY.md
+notebooks/
+  00_data_acquisition_guide.ipynb
+  01_data_preprocessing_and_cleaning.ipynb
+reports/
+src/
+  __init__.py
+  config.py
+  utils.py
+```
+
 ## Outputs (`data/processed/`)
 
 | File | Grain | Purpose |
