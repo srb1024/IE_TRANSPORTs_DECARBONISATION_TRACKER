@@ -1,0 +1,851 @@
+============================================================
+  GITHUB COPILOT INSTRUCTIONS
+  Project: National Transport Decarbonisation Dashboard for Ireland
+  MSc Business Analytics — Final Project
+============================================================
+
+PURPOSE OF THIS FILE
+--------------------
+These instructions tell GitHub Copilot exactly what each script,
+notebook or module in this repository does, what inputs it expects,
+what outputs it must produce, and any important rules to follow.
+Read the relevant section before generating or editing code for that task.
+
+
+================================================================
+  SECTION 0 — PROJECT OVERVIEW
+================================================================
+
+GOAL
+  Build an analytics pipeline and interactive dashboard that tracks
+  Ireland's progress toward transport decarbonisation (2019–2023 core
+  window, with extensions to 2015 and 2026 where noted).
+
+THREE ANALYTICS TIERS
+  1. Descriptive  — What has happened? KPI trends over 2019–2023.
+  2. Predictive   — Where is it heading? ARIMA/Holt-Winters forecasts
+                    to 2026.
+  3. Prescriptive — What should be done? Scenario modelling (BAU,
+                    Moderate Intervention, Accelerated Transition).
+
+THREE COMPOSITE KPIs
+  - Car Dependency Index (CDI):
+      Total private cars licensed (stock) per 1,000 population
+  - Public Transport Usage Index (PTUI):
+      Total annual journeys (Bus + Rail + Luas) per capita
+  - Transport Intensity Indicator (TII):
+      Total vehicle population (all vehicles, THA17) per 1,000 population
+      [Note: vehicle-km data is not available; use vehicle population
+       per capita as the closest proxy]
+
+OFFICIAL FORECAST TARGETS (use these as benchmark lines in charts)
+  - EV share of new car registrations ≥ 30% by 2030
+  - Public transport journeys: return to and exceed 2019 levels by 2025
+    and grow 10% year-on-year thereafter (NTA target proxy)
+  - Car Dependency Index: reduce from 2019 baseline by at least 5%
+    by 2030 (Climate Action Plan proxy)
+
+PRIMARY LANGUAGE: Python 3.10+
+CORE LIBRARIES: pandas, numpy, matplotlib, seaborn, statsmodels,
+                scikit-learn, plotly, openpyxl
+DASHBOARD TOOL: Power BI (export cleaned CSVs + pre-built measures)
+                or Tableau (export cleaned CSVs + calculated fields)
+
+================================================================
+  SECTION 1 — REPOSITORY STRUCTURE
+================================================================
+
+Root directory name: ireland-transport-dashboard
+
+Expected layout:
+
+ireland-transport-dashboard/
+│
+├── data/
+│   ├── raw/                  # Original CSVs — NEVER modify these
+│   │     TEM12_*.csv         # New vehicles by fuel type, 2015–2026
+│   │     TEM22_*.csv         # New private cars (old series), 2019–2021
+│   │     TEM23_*.csv         # All private cars (new series), 2022–2026
+│   │     THA17_*.csv         # Road traffic / vehicle population by county & fuel
+│   │     THA18_*.csv         # Private car population by county, engine, fuel
+│   │     THA25_*.csv         # Public transport journeys (Bus + Rail), 2019–2025
+│   │     TOA11_*.csv         # Luas passenger numbers, 2018–2025
+│   │     PEA01_*.csv         # Annual population estimates, 2018–2025
+│   │     NaPTAN_Stop_Points.csv  # Bus stop spatial data (standby layer)
+│   │
+│   ├── interim/              # Cleaned individual datasets (one CSV per table)
+│   │     tem12_clean.csv
+│   │     tem22_clean.csv
+│   │     tem23_clean.csv
+│   │     tha17_clean.csv
+│   │     tha18_clean.csv
+│   │     tha25_clean.csv
+│   │     toa11_clean.csv
+│   │     pea01_clean.csv
+│   │     private_cars_combined.csv   # TEM22 + TEM23 stitched
+│   │
+│   ├── processed/            # Final analysis-ready datasets
+│   │     annual_fact_table.csv       # Master table keyed by Year
+│   │     kpi_timeseries.csv          # Three KPIs, 2018–2025
+│   │     tem12_fuel_annual.csv       # Annual fuel mix 2015–2026
+│   │     naptan_ireland_active.csv   # Filtered NaPTAN for map layer
+│   │
+│   └── dashboard_exports/    # CSVs formatted for Power BI / Tableau import
+│
+├── notebooks/
+│   ├── 01_data_ingestion.ipynb
+│   ├── 02_data_cleaning.ipynb
+│   ├── 03_integration_and_kpis.ipynb
+│   ├── 04_descriptive_analytics.ipynb
+│   ├── 05_predictive_analytics.ipynb
+│   ├── 06_prescriptive_analytics.ipynb
+│   └── 07_dashboard_export_prep.ipynb
+│
+├── src/
+│   ├── __init__.py
+│   ├── ingestion.py          # load_raw() helpers
+│   ├── cleaning.py           # clean_* functions, one per table
+│   ├── integration.py        # merge, aggregate, KPI construction
+│   ├── analytics/
+│   │   ├── __init__.py
+│   │   ├── descriptive.py    # summary stats, index calculations
+│   │   ├── predictive.py     # ARIMA / Holt-Winters wrappers
+│   │   └── prescriptive.py   # scenario engine
+│   └── utils.py              # shared helpers (date parsing, file I/O)
+│
+├── tests/
+│   ├── test_cleaning.py
+│   ├── test_integration.py
+│   └── test_analytics.py
+│
+├── dashboard/
+│   ├── powerbi/
+│   │   └── ireland_transport.pbix   # Power BI desktop file
+│   └── tableau/
+│       └── ireland_transport.twbx   # Tableau packaged workbook
+│
+├── docs/
+│   ├── data_dictionary.md
+│   └── methodology.md
+│
+├── requirements.txt
+├── .gitignore
+└── README.md
+
+
+================================================================
+  SECTION 2 — TASK: DATA INGESTION  (notebooks/01_data_ingestion.ipynb
+                                      src/ingestion.py)
+================================================================
+
+WHAT THIS TASK DOES
+  Loads every raw CSV from data/raw/ into pandas DataFrames
+  and performs a first-pass audit (shape, column names, dtypes,
+  value counts of key categoricals, null counts). No transformations
+  here — only reads and reports.
+
+FUNCTION TO WRITE  src/ingestion.py → load_raw(table_name: str) → pd.DataFrame
+  - table_name is one of: 'TEM12', 'TEM22', 'TEM23', 'THA17',
+    'THA18', 'THA25', 'TOA11', 'PEA01', 'NaPTAN'
+  - Function globs data/raw/ for a file whose name starts with
+    table_name and ends with .csv, then reads it with pd.read_csv
+  - Returns the raw DataFrame unchanged
+  - Raises FileNotFoundError with a helpful message if no match
+
+AUDIT NOTEBOOK  notebooks/01_data_ingestion.ipynb
+  Cell structure:
+    1. Import load_raw, call it for each table, store in a dict
+    2. For each table print: shape, columns, first 3 rows,
+       dtypes, null counts per column, and unique count of
+       the primary categorical dimensions (see below)
+    3. Print a summary table: table | rows | cols | nulls total
+       | time range
+
+  PRIMARY CATEGORICAL DIMENSIONS TO AUDIT
+    TEM12  : Type of Vehicle Registration, Type of Fuel
+    TEM22  : Engine Capacity cc, Emission Band, Licensing Authority
+    TEM23  : Engine Capacity cc, Emission Band, Licensing Authority
+    THA17  : Fuel Type, County of Ownership, Type of Vehicle
+    THA18  : Type of Ownership, Fuel Type, County of Ownership
+    THA25  : Mode of Transport
+    TOA11  : Statistic Label (Luas line)
+    PEA01  : Age Group, Sex
+    NaPTAN : StopType, BusStopType, Status
+
+RAW FILE COLUMN REFERENCE (do NOT rename until cleaning stage)
+  TEM12  : Statistic Label | Month | Type of Vehicle Registration |
+           Type of Fuel | UNIT | VALUE
+  TEM22  : Statistic Label | Month | Engine Capacity cc | Car Make |
+           Emission Band | Licensing Authority | UNIT | VALUE
+  TEM23  : Statistic Label | Month | Engine Capacity cc | Car Make |
+           Emission Band | Licensing Authority | UNIT | VALUE
+  THA17  : Statistic Label | Year | Fuel Type | County of Ownership |
+           Type of Vehicle | Year of Registration | UNIT | VALUE
+  THA18  : Statistic Label | Year | Type of Ownership |
+           Engine Capacity cc | Fuel Type | County of Ownership |
+           Year of Registration | UNIT | VALUE
+  THA25  : Statistic Label | Week | Mode of Transport | UNIT | VALUE
+  TOA11  : Statistic Label | Year | Month | UNIT | VALUE
+  PEA01  : STATISTIC Label | Year | Age Group | Sex | UNIT | VALUE
+  NaPTAN : AtcoCode | CommonName | Latitude | Longitude | StopType |
+           BusStopType | Status | (+ 16 other cols)
+
+RULES
+  - Never overwrite files in data/raw/
+  - If a file is missing, log a warning and skip that table
+    rather than crashing the whole notebook
+
+
+================================================================
+  SECTION 3 — TASK: DATA CLEANING  (notebooks/02_data_cleaning.ipynb
+                                      src/cleaning.py)
+================================================================
+
+WHAT THIS TASK DOES
+  Cleans each table individually and writes cleaned CSVs to data/interim/.
+  Each cleaning function must be deterministic and idempotent.
+
+---
+3A. clean_tem12(df) → pd.DataFrame  [writes tem12_clean.csv]
+
+  INPUT COLUMN: Month — string like "2015 April" or "2026 March"
+  STEPS
+    1. Parse Month to a proper datetime with pd.to_datetime(df['Month'], format='%Y %B')
+    2. Extract year → new column 'year' (int)
+    3. Extract month_num → new column 'month_num' (int 1–12)
+    4. Filter to rows where Type of Vehicle Registration ==
+       'New Private Cars' OR 'All Vehicles'   (keep both for flexibility)
+    5. Rename columns: snake_case throughout
+       'Statistic Label' → 'statistic'
+       'Type of Vehicle Registration' → 'vehicle_type'
+       'Type of Fuel' → 'fuel_type'
+       'UNIT' → 'unit'
+       'VALUE' → 'value'
+    6. Drop the original 'Month' string column; keep 'year', 'month_num'
+    7. Assert: value dtype is numeric; no negative values
+    8. Save to data/interim/tem12_clean.csv
+
+  FUEL TYPE VALUES TO KEEP (drop rows where fuel_type is not in this list)
+    'All fuel types'
+    'Petrol'
+    'Diesel'
+    'Electric'
+    'Petrol and electric hybrid'
+    'Diesel and electric hybrid'
+    'Petrol or Diesel plug-in hybrid electric'
+    'Other fuel types'
+
+---
+3B. clean_tem22(df) → pd.DataFrame  [writes tem22_clean.csv]
+
+  INPUT COLUMN: Month — string like "2019M01", "2021M12"
+  STEPS
+    1. Parse Month: pd.to_datetime(df['Month'], format='%YM%m')
+    2. Extract year → 'year', month → 'month_num'
+    3. Filter: Licensing Authority != 'All licensing authorities'
+       (we want county-level rows; national total is re-derived later)
+    4. Filter: Engine Capacity cc == 'All engine capacities' (or
+       equivalent "all" category) AND Car Make == 'All makes'
+       AND Emission Band == 'All bands'
+       (This gives total new private cars per county per month)
+    5. Rename snake_case; keep: year | month_num | county | value
+       'Licensing Authority' → 'county'
+    6. Add column: source = 'TEM22'
+    7. Assert: year in [2019, 2020, 2021] only
+    8. Save to data/interim/tem22_clean.csv
+
+  NOTE: The "All" filter categories in TEM22 may use slightly different
+  wording — check unique values and adjust the filter accordingly.
+  The goal is one row per county per month representing total new private
+  cars (any engine, any make, any emission band).
+
+---
+3C. clean_tem23(df) → pd.DataFrame  [writes tem23_clean.csv]
+
+  INPUT COLUMN: Month — string like "2022 January", "2026 March"
+  STEPS
+    1. Parse Month: pd.to_datetime(df['Month'], format='%Y %B')
+    2. Extract year → 'year', month → 'month_num'
+    3. Filter: Licensing Authority not in ['All licensing authorities']
+    4. Filter: Engine Capacity cc contains 'All engine capacities'
+       AND Car Make == 'All makes'
+       AND Emission Band == 'All bands'
+    5. Rename: 'Licensing Authority' → 'county'
+    6. Add column: source = 'TEM23'
+    7. Assert: year in [2022, 2023, 2024, 2025, 2026] only
+    8. Save to data/interim/tem23_clean.csv
+
+  IMPORTANT: TEM23 covers "All Private Cars" (new + imported used cars)
+  whereas TEM22 covered only "New Private Cars". Document this difference
+  as a comment in the code and in the data_dictionary.md file.
+
+---
+3D. clean_tha17(df) → pd.DataFrame  [writes tha17_clean.csv]
+
+  STEPS
+    1. Year column already integer — no parsing needed
+    2. Filter: Year of Registration == 'All years'  (stock not vintage)
+    3. Filter: County of Ownership != 'All counties' (keep county rows;
+       national totals re-derived by sum)
+    4. Rename snake_case:
+       'Statistic Label' → 'statistic'
+       'Fuel Type' → 'fuel_type'
+       'County of Ownership' → 'county'
+       'Type of Vehicle' → 'vehicle_type'
+       'Year of Registration' → 'reg_year'
+       'UNIT' → 'unit'
+       'VALUE' → 'value'
+    5. Assert: year in range(2018, 2024)
+    6. Save to data/interim/tha17_clean.csv
+
+---
+3E. clean_tha18(df) → pd.DataFrame  [writes tha18_clean.csv]
+
+  STEPS
+    1. Year column already integer
+    2. Filter: Year of Registration == 'All years'
+    3. Filter: County of Ownership != 'All counties'
+    4. Filter: Type of Ownership == 'All owners'
+    5. Filter: Engine Capacity cc == 'All engine capacities'
+       (or the equivalent "all" label; check unique values)
+    6. Rename snake_case:
+       'Type of Ownership' → 'ownership_type'
+       'Engine Capacity cc' → 'engine_capacity'
+       'Fuel Type' → 'fuel_type'
+       'County of Ownership' → 'county'
+       'Year of Registration' → 'reg_year'
+    7. Assert: year in range(2018, 2024)
+    8. Save to data/interim/tha18_clean.csv
+
+---
+3F. clean_tha25(df) → pd.DataFrame  [writes tha25_clean.csv]
+
+  INPUT COLUMN: Week — string like "2019 Week 01", "2025 Week 52"
+  STEPS
+    1. Extract year from Week: year = Week.str[:4].astype(int)
+    2. Extract week_num: Week.str.extract(r'Week (\d+)').astype(int)
+    3. Add column: year, week_num
+    4. Handle NaN in VALUE — replace with 0 for aggregation,
+       but FLAG weeks where all modes are NaN as 'data_gap'
+       in a separate boolean column: 'has_gap'
+    5. Rename:
+       'Mode of Transport' → 'transport_mode'
+       'VALUE' → 'value'
+    6. Standardise transport_mode labels:
+       'Dublin Metro Bus'           → 'Bus_Dublin'
+       'Bus, excluding Dublin Metro' → 'Bus_Regional'
+       'Rail'                        → 'Rail'
+    7. Assert: year in range(2019, 2026)
+    8. Save to data/interim/tha25_clean.csv
+
+---
+3G. clean_toa11(df) → pd.DataFrame  [writes toa11_clean.csv]
+
+  STEPS
+    1. Year and Month columns already present
+    2. Parse month: pd.to_datetime(df['Year'].astype(str) + ' ' + df['Month'], format='%Y %B')
+    3. Extract year, month_num
+    4. Rename: 'Statistic Label' → 'luas_line', 'VALUE' → 'value'
+    5. Standardise luas_line: 'Red line' → 'Luas_Red',
+       'Green line' → 'Luas_Green'
+    6. Assert: year in range(2018, 2026); no negative values
+    7. Save to data/interim/toa11_clean.csv
+
+---
+3H. clean_pea01(df) → pd.DataFrame  [writes pea01_clean.csv]
+
+  STEPS
+    1. Year column already integer
+    2. Filter: Age Group == 'All ages'  (total population only)
+    3. Filter: Sex == 'Both sexes'  (combined)
+    4. UNIT == 'Thousand' — multiply VALUE × 1000 to get absolute
+       population; store as integer in new column 'population'
+    5. Rename: 'STATISTIC Label' → 'statistic', 'VALUE' → 'value_thousands'
+    6. Keep only: year | population
+    7. Assert: population > 4_000_000 for all years (sanity check for Ireland)
+    8. Save to data/interim/pea01_clean.csv
+
+---
+3I. clean_naptan(df) → pd.DataFrame  [writes naptan_ireland_active.csv]
+  [This is a STANDBY dataset for the map layer only]
+
+  STEPS
+    1. Filter: Status == 'active'
+    2. Filter: Latitude between 51.3 and 55.5 (bounding box for Ireland)
+    3. Filter: Longitude between -10.5 and -5.9
+    4. Filter: StopType == 'BCT' (Bus/Coach stopping point)
+    5. Drop columns: PlateCode, ShortCommonName, CommonNameGA,
+       ShortCommonNameGA, GridType, Easting, Northing,
+       StopAreaRef, ModificationDateTime
+    6. Keep: AtcoCode | CommonName | Indicator | Street |
+             NptgLocalityRef | Latitude | Longitude |
+             BusStopType | TimingStatus | CompassPoint |
+             AdministrativeAreaRef | Status | CreationDateTime
+    7. Save to data/processed/naptan_ireland_active.csv
+
+
+================================================================
+  SECTION 4 — TASK: INTEGRATION & KPI CONSTRUCTION
+           (notebooks/03_integration_and_kpis.ipynb
+            src/integration.py)
+================================================================
+
+WHAT THIS TASK DOES
+  1. Concatenates TEM22 + TEM23 into a single private car series
+  2. Aggregates all monthly/weekly series to annual totals
+  3. Builds a master annual fact table (year × indicator)
+  4. Constructs the three composite KPIs
+
+---
+4A. build_private_cars_combined()  →  data/interim/private_cars_combined.csv
+
+  STEPS
+    1. Load tem22_clean.csv and tem23_clean.csv
+    2. Standardise both to the same schema:
+       year | month_num | county | value | source
+    3. TEM22 gives new private cars (new vehicles only)
+       TEM23 gives all private cars (new + used/imported)
+       These are DIFFERENT definitions — do NOT blend them
+       for the same year. The boundary is clean: TEM22 = 2019–2021,
+       TEM23 = 2022–2026. Concatenate strictly on year ranges.
+    4. pd.concat([tem22_df, tem23_df], ignore_index=True)
+    5. Create national totals: group by [year, month_num], sum value
+       → column 'national_new_cars_monthly'
+    6. Save combined county-level monthly data to
+       data/interim/private_cars_combined.csv
+
+---
+4B. aggregate_to_annual()  →  annual totals per indicator
+
+  Rules for each series:
+    - TEM12        : group by [year, vehicle_type, fuel_type], sum value
+    - TEM22/TEM23  : group by [year], sum value → national annual total
+    - THA17        : group by [year, vehicle_type, fuel_type], sum value
+                     (already annual, just sum across counties for national)
+    - THA18        : group by [year, fuel_type], sum value
+    - THA25        : group by [year, transport_mode], sum value
+                     (52 weekly observations per year → annual total)
+    - TOA11        : group by [year, luas_line], sum value
+                     → also compute luas_total = Luas_Red + Luas_Green
+    - PEA01        : already annual; just load year → population
+
+---
+4C. build_annual_fact_table()  →  data/processed/annual_fact_table.csv
+
+  Schema (one row per year, columns are named indicators):
+
+    year (int, PK)
+    population (int)
+    new_private_cars_national (int)   — from TEM22/TEM23 combined
+    ev_share_pct (float)              — EV + both hybrids as % of All Vehicles new registrations (from TEM12)
+    petrol_share_pct (float)
+    diesel_share_pct (float)
+    hybrid_share_pct (float)          — petrol hybrid + diesel hybrid + plug-in combined
+    total_vehicle_population (int)    — THA17 all vehicle types, all fuels, national
+    private_car_population (int)      — THA18 all fuels, national
+    bus_dublin_journeys (int)         — THA25 Bus_Dublin annual
+    bus_regional_journeys (int)       — THA25 Bus_Regional annual
+    rail_journeys (int)               — THA25 Rail annual
+    luas_red_journeys (int)           — TOA11 Luas_Red annual
+    luas_green_journeys (int)         — TOA11 Luas_Green annual
+    total_pt_journeys (int)           — sum of all above PT columns
+
+  YEAR RANGE: 2018–2025 (use NaN for years where a source is unavailable)
+
+---
+4D. build_kpi_timeseries()  →  data/processed/kpi_timeseries.csv
+
+  Three KPIs derived from annual_fact_table.csv:
+
+  CAR DEPENDENCY INDEX (CDI)
+    Formula: CDI = (private_car_population / population) × 1000
+    Unit: private cars per 1,000 population
+    Available years: 2018–2023 (THA18 and PEA01 overlap)
+
+  PUBLIC TRANSPORT USAGE INDEX (PTUI)
+    Formula: PTUI = total_pt_journeys / population
+    Unit: journeys per capita per year
+    Available years: 2019–2025 (THA25 + TOA11 + PEA01 overlap)
+    NOTE: THA25 excludes Luas; add TOA11 luas_total to THA25 total
+    for the combined figure
+
+  TRANSPORT INTENSITY INDICATOR (TII)
+    Formula: TII = (total_vehicle_population / population) × 1000
+    Unit: all registered vehicles per 1,000 population
+    Available years: 2018–2023 (THA17 and PEA01 overlap)
+
+  Schema of output:
+    year | CDI | PTUI | TII | CDI_yoy_pct | PTUI_yoy_pct | TII_yoy_pct
+
+  YoY % calculation: (current − previous) / previous × 100
+  Round all KPI values to 2 decimal places.
+
+---
+4E. Compute EV share trend (separate from KPI table)
+
+  From tem12_clean.csv, filter to vehicle_type == 'New Private Cars'
+  Group by year and fuel_type, sum value
+  Pivot so columns are fuel types
+  Compute:
+    ev_share_pct = Electric / All_fuel_types × 100
+    hybrid_share_pct = (petrol_hybrid + diesel_hybrid + plugin) /
+                        All_fuel_types × 100
+    ice_share_pct = (Petrol + Diesel) / All_fuel_types × 100
+  Output: data/processed/tem12_fuel_annual.csv
+    columns: year | ev_share_pct | hybrid_share_pct | ice_share_pct |
+             petrol_share_pct | diesel_share_pct
+
+
+================================================================
+  SECTION 5 — TASK: DESCRIPTIVE ANALYTICS
+           (notebooks/04_descriptive_analytics.ipynb
+            src/analytics/descriptive.py)
+================================================================
+
+WHAT THIS TASK DOES
+  Produces all descriptive-tier outputs: summary statistics,
+  trend tables, and chart-ready data.
+
+---
+5A. Summary statistics for each KPI over core window 2019–2023
+
+  Function: summarise_kpi(kpi_df, kpi_col, start=2019, end=2023)
+  Returns a dict with:
+    mean, median, std, min, max,
+    total_change_pct (end year vs start year),
+    covid_drop_pct (2020 vs 2019),
+    recovery_pct (2022 vs 2020)
+  Print as a formatted table in the notebook
+
+---
+5B. Fuel transition analysis using TEM12 (2015–2026)
+
+  Function: fuel_mix_summary(fuel_df)
+  Returns: DataFrame with year | ev_share_pct | ice_share_pct |
+           hybrid_share_pct | inflection_year
+  inflection_year: first year EV share > 5% (find programmatically)
+  
+  Chart output (matplotlib/seaborn):
+    Stacked area chart: Petrol / Diesel / Hybrid / EV share 2015–2026
+    Title: "New Private Car Registrations by Fuel Type, Ireland 2015–2026"
+    Annotations: EV share milestone years (5%, 10%)
+
+---
+5C. Covid structural break annotation
+
+  When plotting any KPI time series, add:
+    - A vertical dashed line at x=2020, labelled "COVID-19"
+    - A shaded band from x=2020 to x=2021 (recovery period)
+    - Implement as a reusable function: annotate_covid(ax)
+
+---
+5D. Dashboard-ready descriptive tables to export
+
+  Export these to data/dashboard_exports/ as CSVs:
+    desc_kpi_summary.csv          — mean/min/max/trend for each KPI
+    desc_fuel_mix_annual.csv      — fuel share % per year 2015–2026
+    desc_pt_journeys_annual.csv   — PT journeys by mode per year
+    desc_yoy_changes.csv          — year-on-year % changes for all KPIs
+
+
+================================================================
+  SECTION 6 — TASK: PREDICTIVE ANALYTICS
+           (notebooks/05_predictive_analytics.ipynb
+            src/analytics/predictive.py)
+================================================================
+
+WHAT THIS TASK DOES
+  Fits time-series models to each KPI and to EV share, generates
+  forecasts for 2024–2026, and selects the best model per series
+  using AIC/BIC.
+
+---
+6A. Model fitting
+
+  For each target series (CDI, PTUI, TII, ev_share_pct):
+
+  STEP 1 — Stationarity check
+    Run Augmented Dickey-Fuller test (statsmodels.tsa.stattools.adfuller)
+    Print: ADF statistic, p-value, conclusion (stationary / non-stationary)
+    If non-stationary, apply first differencing and re-test
+
+  STEP 2 — Fit ARIMA
+    Use statsmodels.tsa.arima.model.ARIMA
+    Try orders p ∈ {0,1,2}, d ∈ {0,1}, q ∈ {0,1,2}
+    Select best (p,d,q) by AIC using a grid search
+    Function: fit_best_arima(series, max_p=2, max_q=2) → fitted model
+    Store best order, AIC, BIC in a results dict
+
+  STEP 3 — Fit Holt-Winters
+    Use statsmodels.tsa.holtwinters.ExponentialSmoothing
+    Try: trend='add', seasonal=None (annual data, no intra-year seasonality)
+    Fit with damped_trend=True and damped_trend=False; pick by AIC
+    Function: fit_holtwinters(series) → fitted model
+
+  STEP 4 — Model comparison
+    For each series, print a table:
+      Model | AIC | BIC | RMSE (in-sample) | MAE (in-sample)
+    Select winner: lowest AIC
+    Document selection in a markdown cell
+
+---
+6B. Forecasting 2024–2026
+
+  Using the selected model per series:
+    forecast_steps = 3   (2024, 2025, 2026)
+    Generate point forecast + 95% confidence interval
+    Return DataFrame: year | forecast | ci_lower | ci_upper | model_used
+
+  Function: generate_forecast(fitted_model, steps, last_year) → pd.DataFrame
+
+---
+6C. Export forecast outputs
+
+  File: data/processed/forecasts.csv
+  Schema: kpi | year | type (historical/forecast) | value | ci_lower | ci_upper
+
+  Also export: data/dashboard_exports/pred_forecasts_for_dashboard.csv
+  This file combines historical actuals + forecasts in a single long
+  table that Power BI / Tableau can ingest directly.
+
+---
+6D. Forecast charts
+
+  For each KPI:
+    Line chart of historical actuals (solid) + forecast (dashed)
+    Shaded 95% CI band
+    Reference line for policy target
+    Covid annotation via annotate_covid(ax)
+
+  Save all charts to: docs/figures/
+
+
+================================================================
+  SECTION 7 — TASK: PRESCRIPTIVE ANALYTICS
+           (notebooks/06_prescriptive_analytics.ipynb
+            src/analytics/prescriptive.py)
+================================================================
+
+WHAT THIS TASK DOES
+  Builds a scenario engine, runs three named scenarios, performs
+  target gap analysis, and generates plain-language recommendations.
+
+---
+7A. Scenario definitions
+
+  All scenarios start from 2023 actuals and project to 2030.
+
+  SCENARIO 1 — Business As Usual (BAU)
+    CDI:  continue the 2021–2023 average annual change rate
+    PTUI: continue the 2021–2023 average annual growth rate
+    EV%:  continue the 2021–2023 average annual % point increase
+
+  SCENARIO 2 — Moderate Intervention
+    CDI:  BAU rate × 0.95 (slight reduction in car dependency)
+    PTUI: BAU rate + 5% extra annual journey growth (NTA target proxy)
+    EV%:  BAU rate × 1.5 (50% faster EV adoption)
+
+  SCENARIO 3 — Accelerated Transition
+    CDI:  BAU rate × 0.90 (strong modal shift away from cars)
+    PTUI: BAU rate + 12% extra annual journey growth
+    EV%:  BAU rate × 2.5 (aligned with Climate Action Plan ambition)
+
+  Function: run_scenario(scenario_name, base_year_actuals, multipliers)
+  Returns: DataFrame with columns year (2023–2030) and KPI projections
+
+---
+7B. Target gap analysis
+
+  Targets (defined as constants at top of prescriptive.py):
+    EV_TARGET_2030_PCT = 30.0       # EV share ≥ 30% by 2030
+    PTUI_TARGET_2025_GROWTH = 10.0  # +10% PTUI vs 2019 by 2025
+    CDI_TARGET_2030_REDUCTION = 5.0 # CDI ≥ 5% lower than 2019 baseline
+
+  For each scenario × target combination:
+    Compute: gap = target_value − scenario_projection_at_target_year
+    Status:
+      "On Track"   if gap ≤ 0 (i.e., target met or exceeded)
+      "At Risk"    if 0 < gap ≤ target × 0.1 (within 10% of target)
+      "Off Track"  if gap > target × 0.1
+
+  Function: compute_gap(scenario_df, target_col, target_value, target_year)
+  Returns: dict {gap: float, status: str, pct_gap: float}
+
+---
+7C. Sensitivity analysis
+
+  Question: Does EV adoption rate or PT journey growth rate have a
+  greater impact on closing the gap to the 2030 targets?
+
+  Method: vary each lever ±10% and ±20% while holding the other constant
+  (i.e., a 2-variable one-at-a-time sensitivity)
+  Record resulting change in gap for each KPI
+  Output a ranked table: lever | impact on EV gap | impact on PTUI gap |
+                         impact on CDI gap | overall_rank
+
+---
+7D. Plain-language recommendation generator
+
+  Function: generate_recommendations(gap_results: dict) → list[str]
+  Rules:
+    - If EV share is "Off Track": include text about accelerating EV target
+    - If PTUI is "At Risk" or "Off Track": include text about PT investment
+    - If CDI is "Off Track": include text about car dependency reduction
+    - Template strings should include the actual numeric gap and target year
+    Example output:
+      "At current EV adoption rates, Ireland is projected to reach
+       21.3% EV share by 2030, falling 8.7 percentage points short
+       of the 30% target. Accelerating EV uptake by an additional
+       2.9% per year closes this gap by 2030."
+
+---
+7E. Export scenario outputs
+
+  data/processed/scenarios.csv
+  Schema: scenario | year | CDI | PTUI | ev_share_pct |
+          CDI_status | PTUI_status | EV_status
+
+  data/dashboard_exports/prescriptive_scenarios_for_dashboard.csv
+  — Same but formatted for Power BI / Tableau:
+    long format: scenario | year | kpi | value | target | gap | status
+
+
+================================================================
+  SECTION 8 — TASK: DASHBOARD EXPORT PREPARATION
+           (notebooks/07_dashboard_export_prep.ipynb)
+================================================================
+
+WHAT THIS TASK DOES
+  Consolidates and formats all data for import into Power BI or Tableau.
+  All files land in data/dashboard_exports/.
+
+---
+8A. Files to export
+
+  File 1: overview_kpis.csv
+    One row per year per KPI.
+    Columns: year | kpi_name | value | yoy_pct | status
+    kpi_name values: 'Car Dependency Index' |
+                     'Public Transport Usage Index' |
+                     'Transport Intensity Indicator'
+    status: 'Historical' | 'Forecast'
+    Years: 2018–2026 (historical where available, forecast where not)
+
+  File 2: fuel_mix_dashboard.csv
+    From tem12_fuel_annual.csv — ready to use as-is with renamed cols:
+    year | fuel_category | share_pct
+    Long format (unpivot ev/hybrid/ice/petrol/diesel)
+
+  File 3: pt_journeys_dashboard.csv
+    Long format: year | transport_mode | journeys | journeys_per_capita
+    transport_mode: 'Bus (Dublin)' | 'Bus (Regional)' | 'Rail' |
+                    'Luas (Red)' | 'Luas (Green)'
+
+  File 4: scenarios_dashboard.csv
+    From prescriptive_scenarios_for_dashboard.csv — ready to use
+
+  File 5: map_bus_stops.csv
+    From naptan_ireland_active.csv — columns: AtcoCode | CommonName |
+    Latitude | Longitude | BusStopType (used as map layer in dashboard)
+
+---
+8B. Power BI – Measure recommendations (document in dashboard_exports/README_powerbi.txt)
+
+  Write a short text file listing recommended DAX measures:
+    - YoY Change %
+    - KPI Status (conditional: On Track / At Risk / Off Track)
+    - Forecast vs Actual toggle slicer logic
+    - Running total PT journeys
+
+
+================================================================
+  SECTION 9 — TASK: UNIT TESTS  (tests/)
+================================================================
+
+WHAT THIS TASK DOES
+  Tests all cleaning and integration functions so the pipeline
+  is reproducible and regressions are caught.
+
+test_cleaning.py
+  - test_tem12_year_range: assert cleaned TEM12 years in 2015–2026
+  - test_tem22_years_only_2019_2021: assert no rows with year outside range
+  - test_pea01_population_sanity: assert all values > 4_000_000
+  - test_tha25_no_negative_values: assert value >= 0 (after NaN → 0)
+  - test_tem22_tem23_no_year_overlap: assert sets are disjoint
+
+test_integration.py
+  - test_kpi_cdi_formula: given mock population + car data, verify CDI
+  - test_annual_fact_table_schema: assert all expected columns present
+  - test_no_duplicate_years: fact table has exactly one row per year
+  - test_ev_share_sums_to_100: petrol + diesel + ev + hybrid ≈ 100%
+
+test_analytics.py
+  - test_arima_returns_3_forecasts: output has exactly 3 rows
+  - test_scenario_runs_to_2030: scenario output spans 2023–2030
+  - test_gap_on_track_when_exceeded: status == 'On Track' when gap < 0
+  - test_recommendations_not_empty: at least one recommendation returned
+
+
+================================================================
+  SECTION 10 — DEPENDENCIES  (requirements.txt)
+================================================================
+
+pandas>=2.0.0
+numpy>=1.24.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+statsmodels>=0.14.0
+scikit-learn>=1.2.0
+plotly>=5.14.0
+openpyxl>=3.1.0
+pytest>=7.3.0
+jupyter>=1.0.0
+ipykernel>=6.0.0
+scipy>=1.10.0
+
+
+================================================================
+  SECTION 11 — RULES FOR GITHUB COPILOT
+================================================================
+
+1. NEVER modify files in data/raw/ — always read from there, write
+   to data/interim/ or data/processed/ or data/dashboard_exports/.
+
+2. Prefer EXPLICIT pandas operations over magic.
+   Use df[col].str.extract() over regex substitution wherever possible.
+   Always assign results back; avoid chained indexing.
+
+3. All date parsing must be EXPLICIT (format= parameter always set).
+   Never rely on pandas' date inference for these files.
+
+4. Every function must have a docstring with:
+     Args, Returns, Raises, and an Example.
+
+5. Column names in all interim/processed CSVs must be snake_case.
+   Raw column names are preserved only in the ingestion stage.
+
+6. When building the annual fact table, if a source dataset does
+   not cover a given year, use np.nan — do NOT carry forward values
+   or fill with zeros unless explicitly stated above.
+
+7. For all charts: use a consistent colour palette —
+     Car dependency / private cars: #E63946 (red tones)
+     Public transport: #2A9D8F (teal tones)
+     EV / green indicators: #57CC99 (green tones)
+     Diesel / fossil: #6D6875 (muted purple)
+     Forecast/dashed: same colour as historical, dashed linestyle
+
+8. Keep notebooks CLEAN — one logical action per cell, markdown
+   headers between sections, and no dead code.
+
+9. The data/raw/ CSVs use the Irish county names WITHOUT 'Co.' prefix
+   in TEM22/TEM23 (e.g. 'Cork', 'Dublin') but WITH 'Co.' prefix in
+   THA17/THA18 (e.g. 'Co. Cork', 'Co. Dublin'). Harmonise to the
+   WITHOUT-Co. format when merging county-level data.
+
+10. All saved figures must be high resolution: dpi=150 minimum.
+    Save to docs/figures/ as .png files with descriptive names.
+
+================================================================
+  END OF COPILOT INSTRUCTIONS
+================================================================
