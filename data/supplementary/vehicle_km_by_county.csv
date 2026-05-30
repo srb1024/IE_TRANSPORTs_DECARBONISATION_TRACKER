@@ -1,0 +1,469 @@
+Year,county,fuel_type,vehicle_km_million
+2018,Carlow,Diesel,378
+2018,Carlow,Other fuel types,5
+2018,Carlow,Petrol,146
+2018,Cavan,Diesel,457
+2018,Cavan,Other fuel types,6
+2018,Cavan,Petrol,150
+2018,Clare,Diesel,718
+2018,Clare,Other fuel types,11
+2018,Clare,Petrol,342
+2018,Cork,Diesel,2655
+2018,Cork,Other fuel types,59
+2018,Cork,Petrol,1584
+2018,Donegal,Diesel,845
+2018,Donegal,Other fuel types,11
+2018,Donegal,Petrol,311
+2018,Dublin,Diesel,4087
+2018,Dublin,Other fuel types,224
+2018,Dublin,Petrol,3300
+2018,Galway,Diesel,1419
+2018,Galway,Other fuel types,30
+2018,Galway,Petrol,621
+2018,Kerry,Diesel,824
+2018,Kerry,Other fuel types,13
+2018,Kerry,Petrol,441
+2018,Kildare,Diesel,1188
+2018,Kildare,Other fuel types,30
+2018,Kildare,Petrol,602
+2018,Kilkenny,Diesel,580
+2018,Kilkenny,Other fuel types,8
+2018,Kilkenny,Petrol,239
+2018,Laois,Diesel,492
+2018,Laois,Other fuel types,6
+2018,Laois,Petrol,175
+2018,Leitrim,Diesel,211
+2018,Leitrim,Other fuel types,2
+2018,Leitrim,Petrol,72
+2018,Limerick,Diesel,1023
+2018,Limerick,Other fuel types,16
+2018,Limerick,Petrol,541
+2018,Longford,Diesel,256
+2018,Longford,Other fuel types,3
+2018,Longford,Petrol,81
+2018,Louth,Diesel,617
+2018,Louth,Other fuel types,12
+2018,Louth,Petrol,273
+2018,Mayo,Diesel,815
+2018,Mayo,Other fuel types,8
+2018,Mayo,Petrol,313
+2018,Meath,Diesel,1111
+2018,Meath,Other fuel types,24
+2018,Meath,Petrol,477
+2018,Monaghan,Diesel,381
+2018,Monaghan,Other fuel types,3
+2018,Monaghan,Petrol,108
+2018,Offaly,Diesel,480
+2018,Offaly,Other fuel types,6
+2018,Offaly,Petrol,173
+2018,Roscommon,Diesel,472
+2018,Roscommon,Other fuel types,5
+2018,Roscommon,Petrol,184
+2018,Sligo,Diesel,362
+2018,Sligo,Other fuel types,5
+2018,Sligo,Petrol,158
+2018,Tipperary,Diesel,1063
+2018,Tipperary,Other fuel types,11
+2018,Tipperary,Petrol,439
+2018,Waterford,Diesel,616
+2018,Waterford,Other fuel types,11
+2018,Waterford,Petrol,357
+2018,Westmeath,Diesel,575
+2018,Westmeath,Other fuel types,10
+2018,Westmeath,Petrol,200
+2018,Wexford,Diesel,963
+2018,Wexford,Other fuel types,14
+2018,Wexford,Petrol,408
+2018,Wicklow,Diesel,698
+2018,Wicklow,Other fuel types,22
+2018,Wicklow,Petrol,441
+2019,Carlow,Diesel,386
+2019,Carlow,Other fuel types,6
+2019,Carlow,Petrol,132
+2019,Cavan,Diesel,475
+2019,Cavan,Other fuel types,8
+2019,Cavan,Petrol,134
+2019,Clare,Diesel,734
+2019,Clare,Other fuel types,15
+2019,Clare,Petrol,303
+2019,Cork,Diesel,2710
+2019,Cork,Other fuel types,83
+2019,Cork,Petrol,1438
+2019,Donegal,Diesel,871
+2019,Donegal,Other fuel types,15
+2019,Donegal,Petrol,277
+2019,Dublin,Diesel,4090
+2019,Dublin,Other fuel types,318
+2019,Dublin,Petrol,2962
+2019,Galway,Diesel,1468
+2019,Galway,Other fuel types,42
+2019,Galway,Petrol,559
+2019,Kerry,Diesel,850
+2019,Kerry,Other fuel types,17
+2019,Kerry,Petrol,392
+2019,Kildare,Diesel,1197
+2019,Kildare,Other fuel types,42
+2019,Kildare,Petrol,542
+2019,Kilkenny,Diesel,590
+2019,Kilkenny,Other fuel types,11
+2019,Kilkenny,Petrol,214
+2019,Laois,Diesel,505
+2019,Laois,Other fuel types,9
+2019,Laois,Petrol,157
+2019,Leitrim,Diesel,219
+2019,Leitrim,Other fuel types,3
+2019,Leitrim,Petrol,65
+2019,Limerick,Diesel,1045
+2019,Limerick,Other fuel types,22
+2019,Limerick,Petrol,481
+2019,Longford,Diesel,261
+2019,Longford,Other fuel types,5
+2019,Longford,Petrol,71
+2019,Louth,Diesel,625
+2019,Louth,Other fuel types,17
+2019,Louth,Petrol,247
+2019,Mayo,Diesel,832
+2019,Mayo,Other fuel types,11
+2019,Mayo,Petrol,278
+2019,Meath,Diesel,1144
+2019,Meath,Other fuel types,34
+2019,Meath,Petrol,434
+2019,Monaghan,Diesel,392
+2019,Monaghan,Other fuel types,5
+2019,Monaghan,Petrol,96
+2019,Offaly,Diesel,497
+2019,Offaly,Other fuel types,9
+2019,Offaly,Petrol,150
+2019,Roscommon,Diesel,481
+2019,Roscommon,Other fuel types,7
+2019,Roscommon,Petrol,180
+2019,Sligo,Diesel,367
+2019,Sligo,Other fuel types,7
+2019,Sligo,Petrol,142
+2019,Tipperary,Diesel,1091
+2019,Tipperary,Other fuel types,16
+2019,Tipperary,Petrol,389
+2019,Waterford,Diesel,637
+2019,Waterford,Other fuel types,14
+2019,Waterford,Petrol,327
+2019,Westmeath,Diesel,591
+2019,Westmeath,Other fuel types,13
+2019,Westmeath,Petrol,176
+2019,Wexford,Diesel,996
+2019,Wexford,Other fuel types,19
+2019,Wexford,Petrol,364
+2019,Wicklow,Diesel,713
+2019,Wicklow,Other fuel types,30
+2019,Wicklow,Petrol,400
+2020,Carlow,Diesel,292
+2020,Carlow,Other fuel types,6
+2020,Carlow,Petrol,88
+2020,Cavan,Diesel,364
+2020,Cavan,Other fuel types,8
+2020,Cavan,Petrol,90
+2020,Clare,Diesel,555
+2020,Clare,Other fuel types,14
+2020,Clare,Petrol,205
+2020,Cork,Diesel,2034
+2020,Cork,Other fuel types,84
+2020,Cork,Petrol,998
+2020,Donegal,Diesel,664
+2020,Donegal,Other fuel types,15
+2020,Donegal,Petrol,191
+2020,Dublin,Diesel,2980
+2020,Dublin,Other fuel types,318
+2020,Dublin,Petrol,2035
+2020,Galway,Diesel,1112
+2020,Galway,Other fuel types,40
+2020,Galway,Petrol,382
+2020,Kerry,Diesel,650
+2020,Kerry,Other fuel types,17
+2020,Kerry,Petrol,265
+2020,Kildare,Diesel,906
+2020,Kildare,Other fuel types,42
+2020,Kildare,Petrol,376
+2020,Kilkenny,Diesel,449
+2020,Kilkenny,Other fuel types,11
+2020,Kilkenny,Petrol,146
+2020,Laois,Diesel,386
+2020,Laois,Other fuel types,8
+2020,Laois,Petrol,104
+2020,Leitrim,Diesel,165
+2020,Leitrim,Other fuel types,2
+2020,Leitrim,Petrol,45
+2020,Limerick,Diesel,793
+2020,Limerick,Other fuel types,22
+2020,Limerick,Petrol,326
+2020,Longford,Diesel,198
+2020,Longford,Other fuel types,5
+2020,Longford,Petrol,49
+2020,Louth,Diesel,472
+2020,Louth,Other fuel types,17
+2020,Louth,Petrol,174
+2020,Mayo,Diesel,629
+2020,Mayo,Other fuel types,12
+2020,Mayo,Petrol,187
+2020,Meath,Diesel,869
+2020,Meath,Other fuel types,34
+2020,Meath,Petrol,301
+2020,Monaghan,Diesel,295
+2020,Monaghan,Other fuel types,5
+2020,Monaghan,Petrol,65
+2020,Offaly,Diesel,375
+2020,Offaly,Other fuel types,9
+2020,Offaly,Petrol,100
+2020,Roscommon,Diesel,347
+2020,Roscommon,Other fuel types,7
+2020,Roscommon,Petrol,110
+2020,Sligo,Diesel,280
+2020,Sligo,Other fuel types,7
+2020,Sligo,Petrol,98
+2020,Tipperary,Diesel,837
+2020,Tipperary,Other fuel types,17
+2020,Tipperary,Petrol,260
+2020,Waterford,Diesel,473
+2020,Waterford,Other fuel types,14
+2020,Waterford,Petrol,223
+2020,Westmeath,Diesel,448
+2020,Westmeath,Other fuel types,13
+2020,Westmeath,Petrol,119
+2020,Wexford,Diesel,757
+2020,Wexford,Other fuel types,18
+2020,Wexford,Petrol,245
+2020,Wicklow,Diesel,535
+2020,Wicklow,Other fuel types,29
+2020,Wicklow,Petrol,279
+2021,Carlow,Diesel,344
+2021,Carlow,Other fuel types,12
+2021,Carlow,Petrol,93
+2021,Cavan,Diesel,432
+2021,Cavan,Other fuel types,13
+2021,Cavan,Petrol,97
+2021,Clare,Diesel,654
+2021,Clare,Other fuel types,26
+2021,Clare,Petrol,221
+2021,Cork,Diesel,2374
+2021,Cork,Other fuel types,144
+2021,Cork,Petrol,1085
+2021,Donegal,Diesel,779
+2021,Donegal,Other fuel types,26
+2021,Donegal,Petrol,211
+2021,Dublin,Diesel,3356
+2021,Dublin,Other fuel types,535
+2021,Dublin,Petrol,2221
+2021,Galway,Diesel,1307
+2021,Galway,Other fuel types,67
+2021,Galway,Petrol,410
+2021,Kerry,Diesel,775
+2021,Kerry,Other fuel types,28
+2021,Kerry,Petrol,283
+2021,Kildare,Diesel,1047
+2021,Kildare,Other fuel types,73
+2021,Kildare,Petrol,415
+2021,Kilkenny,Diesel,528
+2021,Kilkenny,Other fuel types,19
+2021,Kilkenny,Petrol,158
+2021,Laois,Diesel,457
+2021,Laois,Other fuel types,15
+2021,Laois,Petrol,111
+2021,Leitrim,Diesel,196
+2021,Leitrim,Other fuel types,4
+2021,Leitrim,Petrol,48
+2021,Limerick,Diesel,931
+2021,Limerick,Other fuel types,40
+2021,Limerick,Petrol,349
+2021,Longford,Diesel,234
+2021,Longford,Other fuel types,7
+2021,Longford,Petrol,51
+2021,Louth,Diesel,543
+2021,Louth,Other fuel types,30
+2021,Louth,Petrol,190
+2021,Mayo,Diesel,753
+2021,Mayo,Other fuel types,21
+2021,Mayo,Petrol,199
+2021,Meath,Diesel,1007
+2021,Meath,Other fuel types,60
+2021,Meath,Petrol,329
+2021,Monaghan,Diesel,349
+2021,Monaghan,Other fuel types,8
+2021,Monaghan,Petrol,70
+2021,Offaly,Diesel,447
+2021,Offaly,Other fuel types,15
+2021,Offaly,Petrol,108
+2021,Roscommon,Diesel,408
+2021,Roscommon,Other fuel types,12
+2021,Roscommon,Petrol,116
+2021,Sligo,Diesel,326
+2021,Sligo,Other fuel types,12
+2021,Sligo,Petrol,104
+2021,Tipperary,Diesel,996
+2021,Tipperary,Other fuel types,30
+2021,Tipperary,Petrol,273
+2021,Waterford,Diesel,543
+2021,Waterford,Other fuel types,24
+2021,Waterford,Petrol,246
+2021,Westmeath,Diesel,521
+2021,Westmeath,Other fuel types,21
+2021,Westmeath,Petrol,126
+2021,Wexford,Diesel,893
+2021,Wexford,Other fuel types,31
+2021,Wexford,Petrol,265
+2021,Wicklow,Diesel,616
+2021,Wicklow,Other fuel types,49
+2021,Wicklow,Petrol,298
+2022,Carlow,Diesel,393
+2022,Carlow,Other fuel types,20
+2022,Carlow,Petrol,103
+2022,Cavan,Diesel,493
+2022,Cavan,Other fuel types,23
+2022,Cavan,Petrol,106
+2022,Clare,Diesel,754
+2022,Clare,Other fuel types,44
+2022,Clare,Petrol,245
+2022,Cork,Diesel,2701
+2022,Cork,Other fuel types,244
+2022,Cork,Petrol,1205
+2022,Donegal,Diesel,894
+2022,Donegal,Other fuel types,44
+2022,Donegal,Petrol,234
+2022,Dublin,Diesel,3727
+2022,Dublin,Other fuel types,866
+2022,Dublin,Petrol,2502
+2022,Galway,Diesel,1503
+2022,Galway,Other fuel types,109
+2022,Galway,Petrol,451
+2022,Kerry,Diesel,904
+2022,Kerry,Other fuel types,46
+2022,Kerry,Petrol,307
+2022,Kildare,Diesel,1204
+2022,Kildare,Other fuel types,125
+2022,Kildare,Petrol,475
+2022,Kilkenny,Diesel,608
+2022,Kilkenny,Other fuel types,32
+2022,Kilkenny,Petrol,176
+2022,Laois,Diesel,529
+2022,Laois,Other fuel types,26
+2022,Laois,Petrol,123
+2022,Leitrim,Diesel,224
+2022,Leitrim,Other fuel types,8
+2022,Leitrim,Petrol,53
+2022,Limerick,Diesel,1066
+2022,Limerick,Other fuel types,67
+2022,Limerick,Petrol,384
+2022,Longford,Diesel,266
+2022,Longford,Other fuel types,12
+2022,Longford,Petrol,57
+2022,Louth,Diesel,607
+2022,Louth,Other fuel types,49
+2022,Louth,Petrol,220
+2022,Mayo,Diesel,867
+2022,Mayo,Other fuel types,36
+2022,Mayo,Petrol,214
+2022,Meath,Diesel,1140
+2022,Meath,Other fuel types,101
+2022,Meath,Petrol,371
+2022,Monaghan,Diesel,402
+2022,Monaghan,Other fuel types,13
+2022,Monaghan,Petrol,77
+2022,Offaly,Diesel,515
+2022,Offaly,Other fuel types,24
+2022,Offaly,Petrol,116
+2022,Roscommon,Diesel,474
+2022,Roscommon,Other fuel types,21
+2022,Roscommon,Petrol,157
+2022,Sligo,Diesel,375
+2022,Sligo,Other fuel types,21
+2022,Sligo,Petrol,115
+2022,Tipperary,Diesel,1145
+2022,Tipperary,Other fuel types,51
+2022,Tipperary,Petrol,296
+2022,Waterford,Diesel,621
+2022,Waterford,Other fuel types,41
+2022,Waterford,Petrol,276
+2022,Westmeath,Diesel,598
+2022,Westmeath,Other fuel types,34
+2022,Westmeath,Petrol,140
+2022,Wexford,Diesel,1031
+2022,Wexford,Other fuel types,53
+2022,Wexford,Petrol,297
+2022,Wicklow,Diesel,694
+2022,Wicklow,Other fuel types,78
+2022,Wicklow,Petrol,329
+2023,Carlow,Diesel,387
+2023,Carlow,Other fuel types,28
+2023,Carlow,Petrol,106
+2023,Cavan,Diesel,483
+2023,Cavan,Other fuel types,34
+2023,Cavan,Petrol,107
+2023,Clare,Diesel,739
+2023,Clare,Other fuel types,62
+2023,Clare,Petrol,244
+2023,Cork,Diesel,2628
+2023,Cork,Other fuel types,340
+2023,Cork,Petrol,1198
+2023,Donegal,Diesel,888
+2023,Donegal,Other fuel types,62
+2023,Donegal,Petrol,238
+2023,Dublin,Diesel,3438
+2023,Dublin,Other fuel types,1162
+2023,Dublin,Petrol,2482
+2023,Galway,Diesel,1482
+2023,Galway,Other fuel types,149
+2023,Galway,Petrol,453
+2023,Kerry,Diesel,891
+2023,Kerry,Other fuel types,64
+2023,Kerry,Petrol,302
+2023,Kildare,Diesel,1174
+2023,Kildare,Other fuel types,176
+2023,Kildare,Petrol,485
+2023,Kilkenny,Diesel,596
+2023,Kilkenny,Other fuel types,47
+2023,Kilkenny,Petrol,175
+2023,Laois,Diesel,522
+2023,Laois,Other fuel types,36
+2023,Laois,Petrol,127
+2023,Leitrim,Diesel,224
+2023,Leitrim,Other fuel types,11
+2023,Leitrim,Petrol,53
+2023,Limerick,Diesel,1039
+2023,Limerick,Other fuel types,97
+2023,Limerick,Petrol,381
+2023,Longford,Diesel,262
+2023,Longford,Other fuel types,16
+2023,Longford,Petrol,57
+2023,Louth,Diesel,583
+2023,Louth,Other fuel types,70
+2023,Louth,Petrol,230
+2023,Mayo,Diesel,857
+2023,Mayo,Other fuel types,50
+2023,Mayo,Petrol,210
+2023,Meath,Diesel,1098
+2023,Meath,Other fuel types,142
+2023,Meath,Petrol,381
+2023,Monaghan,Diesel,392
+2023,Monaghan,Other fuel types,18
+2023,Monaghan,Petrol,79
+2023,Offaly,Diesel,507
+2023,Offaly,Other fuel types,34
+2023,Offaly,Petrol,119
+2023,Roscommon,Diesel,475
+2023,Roscommon,Other fuel types,33
+2023,Roscommon,Petrol,183
+2023,Sligo,Diesel,368
+2023,Sligo,Other fuel types,30
+2023,Sligo,Petrol,116
+2023,Tipperary,Diesel,1119
+2023,Tipperary,Other fuel types,72
+2023,Tipperary,Petrol,293
+2023,Waterford,Diesel,611
+2023,Waterford,Other fuel types,59
+2023,Waterford,Petrol,285
+2023,Westmeath,Diesel,586
+2023,Westmeath,Other fuel types,47
+2023,Westmeath,Petrol,140
+2023,Wexford,Diesel,1020
+2023,Wexford,Other fuel types,77
+2023,Wexford,Petrol,299
+2023,Wicklow,Diesel,668
+2023,Wicklow,Other fuel types,106
+2023,Wicklow,Petrol,326
