@@ -1,0 +1,5 @@
+Year,population,private_cars,car_dependency_index,pt_usage_index,transport_intensity_index,pt_total_journeys,total_vehicle_km_million,pt_total_complete,period_phase
+2019,4958300,2168101.0,437.27,47.78,9491.6,236904382.0,47062.0,False,Pre-pandemic baseline
+2020,5029900,2211414.0,439.65,26.94,7200.7,135482017.0,36219.0,True,Covid-19 structural break
+2021,5074800,2248920.0,443.15,26.79,8247.8,135966013.0,41856.0,True,Covid-19 structural break
+2022,5183600,2266205.0,437.19,46.57,9180.3,241399536.0,47587.0,True,Post-pandemic recovery
