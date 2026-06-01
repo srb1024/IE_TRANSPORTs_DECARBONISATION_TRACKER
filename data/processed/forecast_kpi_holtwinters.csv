@@ -1,0 +1,10 @@
+Year,kpi,forecast_value,model,MAPE_pct
+2024,car_dependency_index,440.456,Holt-Winters,0.56
+2025,car_dependency_index,440.782,Holt-Winters,0.56
+2026,car_dependency_index,441.108,Holt-Winters,0.56
+2024,pt_usage_index,59.056,Holt-Winters,19.77
+2025,pt_usage_index,63.436,Holt-Winters,19.77
+2026,pt_usage_index,67.816,Holt-Winters,19.77
+2024,transport_intensity_index,8557.7,Holt-Winters,0.93
+2025,transport_intensity_index,8246.4,Holt-Winters,0.93
+2026,transport_intensity_index,7935.101,Holt-Winters,0.93
