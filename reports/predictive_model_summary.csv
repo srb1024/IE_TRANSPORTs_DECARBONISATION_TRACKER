@@ -1,0 +1,7 @@
+Model,Series,MAE,MAPE_%,Test period
+Holt-Winters,Car Dependency Index (cars/100,2.648,0.56,2023 (1 year)
+Holt-Winters,PT Usage Index (journeys/capit,11.18,19.77,2023 (1 year)
+Holt-Winters,Transport Intensity (vkm/capit,83.5,0.93,2023 (1 year)
+SARIMA(best),EV+PHEV monthly share,0.06239,22.82,2024-2025
+SARIMAX,Monthly PT journeys,3.365,15.33,2023-2025
+Logistic curve,Annual EV share,3.102,11.56,2023-2025
