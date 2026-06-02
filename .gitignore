@@ -79,10 +79,10 @@ target/
 .ipynb_checkpoints
 
 # Project outputs
-data/interim/
-data/processed/
-data/dashboard_exports/
-docs/figures/
+#data/interim/
+#data/processed/
+#data/dashboard_exports/
+#docs/figures/
 
 # IPython
 profile_default/

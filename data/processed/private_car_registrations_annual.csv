@@ -1,0 +1,9 @@
+Year,private_cars_licensed,months_reported,year_complete,source_table
+2019,203674,12,True,TEM22
+2020,162850,12,True,TEM22
+2021,169895,12,True,TEM22
+2022,147916,12,True,TEM23
+2023,167805,12,True,TEM23
+2024,178521,12,True,TEM23
+2025,192401,12,True,TEM23
+2026,95320,4,False,TEM23

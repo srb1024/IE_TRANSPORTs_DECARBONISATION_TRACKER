@@ -1,0 +1,8 @@
+Year,ev_phev_pct_forecast,cap_2030_target_pct,gap_to_target_pp,model,saturation_ceiling_L,inflection_year_t0
+2024,29.47,50.0,20.53,Logistic S-curve,31.6,2021.09
+2025,30.702,50.0,19.298,Logistic S-curve,31.6,2021.09
+2026,31.231,50.0,18.769,Logistic S-curve,31.6,2021.09
+2027,31.451,50.0,18.549,Logistic S-curve,31.6,2021.09
+2028,31.541,50.0,18.459,Logistic S-curve,31.6,2021.09
+2029,31.577,50.0,18.423,Logistic S-curve,31.6,2021.09
+2030,31.592,50.0,18.408,Logistic S-curve,31.6,2021.09
