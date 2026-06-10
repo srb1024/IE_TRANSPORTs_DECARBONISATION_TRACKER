@@ -1,0 +1,6 @@
+Algorithm,Min data needed,Your data,Why excluded,Reference
+LSTM (Deep Learning),500+ points,5 annual / 24 monthly,Insufficient data — would memorise not learn,Hyndman & Athanasopoulos 2021
+Random Forest / XGBoost,200+ rows with features,5-8 annual points,Cannot create meaningful feature matrix from 5 points,Makridakis et al. 2018
+Prophet (Facebook),2+ full seasonal cycles,Annual — no sub-annual seasonality,Designed for daily/weekly data with holidays,Taylor & Letham 2018
+VAR (Vector Autoregression),30+ points per series,5 annual points,Requires more observations than variables,Lütkepohl 2005
+Exponential Smoothing State Space (ETS),2+ seasonal cycles,Annual — 1 observation per period,Holt-Winters is the double ETS variant — already used,Hyndman et al. 2008
