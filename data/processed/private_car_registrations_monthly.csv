@@ -1,0 +1,89 @@
+Year,MonthNum,Date,private_cars_licensed,source_table,definition
+2019,1,2019-01-01,30410,TEM22,New + Second-hand (summed detail)
+2019,2,2019-02-01,22852,TEM22,New + Second-hand (summed detail)
+2019,3,2019-03-01,23505,TEM22,New + Second-hand (summed detail)
+2019,4,2019-04-01,22522,TEM22,New + Second-hand (summed detail)
+2019,5,2019-05-01,18188,TEM22,New + Second-hand (summed detail)
+2019,6,2019-06-01,11856,TEM22,New + Second-hand (summed detail)
+2019,7,2019-07-01,9418,TEM22,New + Second-hand (summed detail)
+2019,8,2019-08-01,16522,TEM22,New + Second-hand (summed detail)
+2019,9,2019-09-01,13972,TEM22,New + Second-hand (summed detail)
+2019,10,2019-10-01,14155,TEM22,New + Second-hand (summed detail)
+2019,11,2019-11-01,11550,TEM22,New + Second-hand (summed detail)
+2019,12,2019-12-01,8724,TEM22,New + Second-hand (summed detail)
+2020,1,2020-01-01,28348,TEM22,New + Second-hand (summed detail)
+2020,2,2020-02-01,20350,TEM22,New + Second-hand (summed detail)
+2020,3,2020-03-01,15821,TEM22,New + Second-hand (summed detail)
+2020,4,2020-04-01,2659,TEM22,New + Second-hand (summed detail)
+2020,5,2020-05-01,2660,TEM22,New + Second-hand (summed detail)
+2020,6,2020-06-01,5927,TEM22,New + Second-hand (summed detail)
+2020,7,2020-07-01,23604,TEM22,New + Second-hand (summed detail)
+2020,8,2020-08-01,15392,TEM22,New + Second-hand (summed detail)
+2020,9,2020-09-01,15047,TEM22,New + Second-hand (summed detail)
+2020,10,2020-10-01,13732,TEM22,New + Second-hand (summed detail)
+2020,11,2020-11-01,9360,TEM22,New + Second-hand (summed detail)
+2020,12,2020-12-01,9950,TEM22,New + Second-hand (summed detail)
+2021,1,2021-01-01,25074,TEM22,New + Second-hand (summed detail)
+2021,2,2021-02-01,18351,TEM22,New + Second-hand (summed detail)
+2021,3,2021-03-01,17262,TEM22,New + Second-hand (summed detail)
+2021,4,2021-04-01,14455,TEM22,New + Second-hand (summed detail)
+2021,5,2021-05-01,13763,TEM22,New + Second-hand (summed detail)
+2021,6,2021-06-01,10880,TEM22,New + Second-hand (summed detail)
+2021,7,2021-07-01,25822,TEM22,New + Second-hand (summed detail)
+2021,8,2021-08-01,13782,TEM22,New + Second-hand (summed detail)
+2021,9,2021-09-01,11410,TEM22,New + Second-hand (summed detail)
+2021,10,2021-10-01,8388,TEM22,New + Second-hand (summed detail)
+2021,11,2021-11-01,6491,TEM22,New + Second-hand (summed detail)
+2021,12,2021-12-01,4217,TEM22,New + Second-hand (summed detail)
+2022,1,2022-01-01,19500,TEM23,"All private cars (new + imported), national aggregate"
+2022,2,2022-02-01,17572,TEM23,"All private cars (new + imported), national aggregate"
+2022,3,2022-03-01,15774,TEM23,"All private cars (new + imported), national aggregate"
+2022,4,2022-04-01,13815,TEM23,"All private cars (new + imported), national aggregate"
+2022,5,2022-05-01,11143,TEM23,"All private cars (new + imported), national aggregate"
+2022,6,2022-06-01,7718,TEM23,"All private cars (new + imported), national aggregate"
+2022,7,2022-07-01,19196,TEM23,"All private cars (new + imported), national aggregate"
+2022,8,2022-08-01,13332,TEM23,"All private cars (new + imported), national aggregate"
+2022,9,2022-09-01,11693,TEM23,"All private cars (new + imported), national aggregate"
+2022,10,2022-10-01,8329,TEM23,"All private cars (new + imported), national aggregate"
+2022,11,2022-11-01,6092,TEM23,"All private cars (new + imported), national aggregate"
+2022,12,2022-12-01,3752,TEM23,"All private cars (new + imported), national aggregate"
+2023,1,2023-01-01,20149,TEM23,"All private cars (new + imported), national aggregate"
+2023,2,2023-02-01,17270,TEM23,"All private cars (new + imported), national aggregate"
+2023,3,2023-03-01,20311,TEM23,"All private cars (new + imported), national aggregate"
+2023,4,2023-04-01,15422,TEM23,"All private cars (new + imported), national aggregate"
+2023,5,2023-05-01,14775,TEM23,"All private cars (new + imported), national aggregate"
+2023,6,2023-06-01,9691,TEM23,"All private cars (new + imported), national aggregate"
+2023,7,2023-07-01,22454,TEM23,"All private cars (new + imported), national aggregate"
+2023,8,2023-08-01,15887,TEM23,"All private cars (new + imported), national aggregate"
+2023,9,2023-09-01,11114,TEM23,"All private cars (new + imported), national aggregate"
+2023,10,2023-10-01,8894,TEM23,"All private cars (new + imported), national aggregate"
+2023,11,2023-11-01,6963,TEM23,"All private cars (new + imported), national aggregate"
+2023,12,2023-12-01,4875,TEM23,"All private cars (new + imported), national aggregate"
+2024,1,2024-01-01,25461,TEM23,"All private cars (new + imported), national aggregate"
+2024,2,2024-02-01,18973,TEM23,"All private cars (new + imported), national aggregate"
+2024,3,2024-03-01,20196,TEM23,"All private cars (new + imported), national aggregate"
+2024,4,2024-04-01,17808,TEM23,"All private cars (new + imported), national aggregate"
+2024,5,2024-05-01,15647,TEM23,"All private cars (new + imported), national aggregate"
+2024,6,2024-06-01,8727,TEM23,"All private cars (new + imported), national aggregate"
+2024,7,2024-07-01,24172,TEM23,"All private cars (new + imported), national aggregate"
+2024,8,2024-08-01,14688,TEM23,"All private cars (new + imported), national aggregate"
+2024,9,2024-09-01,11503,TEM23,"All private cars (new + imported), national aggregate"
+2024,10,2024-10-01,9448,TEM23,"All private cars (new + imported), national aggregate"
+2024,11,2024-11-01,7148,TEM23,"All private cars (new + imported), national aggregate"
+2024,12,2024-12-01,4750,TEM23,"All private cars (new + imported), national aggregate"
+2025,1,2025-01-01,27311,TEM23,"All private cars (new + imported), national aggregate"
+2025,2,2025-02-01,19848,TEM23,"All private cars (new + imported), national aggregate"
+2025,3,2025-03-01,20305,TEM23,"All private cars (new + imported), national aggregate"
+2025,4,2025-04-01,18570,TEM23,"All private cars (new + imported), national aggregate"
+2025,5,2025-05-01,14547,TEM23,"All private cars (new + imported), national aggregate"
+2025,6,2025-06-01,10707,TEM23,"All private cars (new + imported), national aggregate"
+2025,7,2025-07-01,26563,TEM23,"All private cars (new + imported), national aggregate"
+2025,8,2025-08-01,15403,TEM23,"All private cars (new + imported), national aggregate"
+2025,9,2025-09-01,13493,TEM23,"All private cars (new + imported), national aggregate"
+2025,10,2025-10-01,10994,TEM23,"All private cars (new + imported), national aggregate"
+2025,11,2025-11-01,8314,TEM23,"All private cars (new + imported), national aggregate"
+2025,12,2025-12-01,6346,TEM23,"All private cars (new + imported), national aggregate"
+2026,1,2026-01-01,31259,TEM23,"All private cars (new + imported), national aggregate"
+2026,2,2026-02-01,21314,TEM23,"All private cars (new + imported), national aggregate"
+2026,3,2026-03-01,23085,TEM23,"All private cars (new + imported), national aggregate"
+2026,4,2026-04-01,19662,TEM23,"All private cars (new + imported), national aggregate"
