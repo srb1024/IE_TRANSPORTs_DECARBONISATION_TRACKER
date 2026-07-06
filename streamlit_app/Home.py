@@ -1,0 +1,44 @@
+"""Landing page for the Irish Transport Decarbonisation Tracker."""
+import pandas as pd
+import streamlit as st
+
+from data_loader import PROCESSED_DIR, load_all
+from nav import hide_sidebar, nav_bar, page_heading
+from style import apply_page_style
+
+st.set_page_config(page_title="Irish Transport Decarbonisation Tracker", page_icon="🚆", layout="wide")
+hide_sidebar()
+apply_page_style()
+
+page_heading("Home")
+nav_bar("Home")
+
+with st.container(border=True):
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.subheader("Overview", anchor=False)
+        st.caption("KPIs indexed to 2019.")
+    with col2:
+        st.subheader("Fuel Transition", anchor=False)
+        st.caption("Fleet fuel mix and EV adoption.")
+    with col3:
+        st.subheader("Predictive", anchor=False)
+        st.caption("Holt-Winters and SARIMA forecasts.")
+    with col4:
+        st.subheader("Prescriptive", anchor=False)
+        st.caption("Scenarios, sensitivity and county priority.")
+
+with st.expander("Data connection diagnostics"):
+    st.caption(f"Reading pipeline CSVs from {PROCESSED_DIR}")
+    try:
+        tables = load_all()
+    except FileNotFoundError as e:
+        st.write(str(e))
+        st.stop()
+    rows = []
+    for name, df in tables.items():
+        year_col = "Year" if "Year" in df.columns else ("Date" if "Date" in df.columns else None)
+        span = f"{df[year_col].min()} to {df[year_col].max()}" if year_col is not None else "n/a"
+        rows.append({"table": name, "rows": len(df), "columns": len(df.columns), "span": span})
+    st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+    st.caption(f"{len(tables)} tables loaded successfully.")
