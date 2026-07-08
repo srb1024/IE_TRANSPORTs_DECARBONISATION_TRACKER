@@ -53,6 +53,7 @@ _TABLES: dict[str, str] = {
     "prescriptive_reverse_solve": "prescriptive_reverse_solve.csv",
     "population": "dim_population_annual.csv",
     "naptan_stops": "naptan_stops_clean.csv",
+    "ev_registration_gap": "forecast_ev_registration_gap.csv",
 }
 
 

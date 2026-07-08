@@ -1,9 +1,9 @@
-Year,population,luas_journeys,luas_complete,bus_journeys,rail_journeys,pt_weeks_present,rail_complete,private_cars,private_car_km_million,total_vehicle_km_million,total_vehicles,pt_total_journeys,pt_total_complete,car_dependency_index,pt_usage_index,transport_intensity_index,car_dependency_index_yoy_pct,pt_usage_index_yoy_pct,transport_intensity_index_yoy_pct,in_core_window,period_phase
-2018,4885000,41836966,True,,,,,2117468.0,35971.0,47531.0,2729001.0,41836966.0,,433.46,8.56,9730.0,,,,False,Pre-pandemic baseline
-2019,4958300,48347231,True,188557151.0,,53.0,False,2168101.0,35450.0,47062.0,2790775.0,236904382.0,False,437.27,47.78,9491.6,0.88,458.18,-2.45,True,Pre-pandemic baseline
-2020,5029900,19176057,True,97524090.0,18781870.0,53.0,True,2211414.0,26106.0,36219.0,2848026.0,135482017.0,True,439.65,26.94,7200.7,0.54,-43.62,-24.14,True,Covid-19 structural break
-2021,5074800,19481318,True,99411734.0,17072961.0,53.0,True,2248920.0,30218.0,41856.0,2901404.0,135966013.0,True,443.15,26.79,8247.8,0.8,-0.56,14.54,True,Covid-19 structural break
-2022,5183600,38667875,True,167993544.0,34738117.0,53.0,True,2266205.0,34957.0,47587.0,2927539.0,241399536.0,True,437.19,46.57,9180.3,-1.34,73.83,11.31,True,Post-pandemic recovery
-2023,5281300,48205217,True,206476282.0,43918912.0,52.0,True,2311510.0,35126.0,47281.0,2983207.0,298600411.0,True,437.68,56.54,8952.5,0.11,21.41,-2.48,True,Post-pandemic recovery
-2024,5380500,54227600,True,225628060.0,47988050.0,52.0,True,,,,,327843710.0,True,,60.93,,0.0,7.76,0.0,False,Post-pandemic recovery
-2025,5458500,55131012,True,226980852.0,44539399.0,52.0,True,,,,,326651263.0,True,,59.84,,0.0,-1.79,0.0,False,Post-pandemic recovery
+Year,population,luas_journeys,luas_complete,bus_journeys,rail_journeys,pt_weeks_present,rail_complete,private_cars,private_car_km_million,traditional_cars,non_traditional_cars,total_vehicle_km_million,total_vehicles,pt_total_journeys,pt_total_complete,car_dependency_index,pt_usage_index,transport_intensity_index,traditional_cdi,non_traditional_cdi,car_dependency_index_yoy_pct,pt_usage_index_yoy_pct,transport_intensity_index_yoy_pct,traditional_cdi_yoy_pct,non_traditional_cdi_yoy_pct,in_core_window,period_phase
+2018,4885000,41836966,True,,,,,2117468.0,35971.0,2076264.0,41204.0,47531.0,2729001.0,41836966.0,,433.46,8.56,9730.0,425.03,8.43,,,,,,False,Pre-pandemic baseline
+2019,4958300,48347231,True,188557151.0,,53.0,False,2168101.0,35450.0,2108346.0,59755.0,47062.0,2790775.0,236904382.0,False,437.27,47.78,9491.6,425.22,12.05,0.88,458.18,-2.45,0.04,42.94,True,Pre-pandemic baseline
+2020,5029900,19176057,True,97524090.0,18781870.0,53.0,True,2211414.0,26106.0,2129184.0,82230.0,36219.0,2848026.0,135482017.0,True,439.65,26.94,7200.7,423.31,16.35,0.54,-43.62,-24.14,-0.45,35.68,True,Covid-19 structural break
+2021,5074800,19481318,True,99411734.0,17072961.0,53.0,True,2248920.0,30218.0,2130722.0,118198.0,41856.0,2901404.0,135966013.0,True,443.15,26.79,8247.8,419.86,23.29,0.8,-0.56,14.54,-0.82,42.45,True,Covid-19 structural break
+2022,5183600,38667875,True,167993544.0,34738117.0,53.0,True,2266205.0,34957.0,2100267.0,165938.0,47587.0,2927539.0,241399536.0,True,437.19,46.57,9180.3,405.18,32.01,-1.34,73.83,11.31,-3.5,37.44,True,Post-pandemic recovery
+2023,5281300,48205217,True,206476282.0,43918912.0,52.0,True,2311510.0,35126.0,2092659.0,218851.0,47281.0,2983207.0,298600411.0,True,437.68,56.54,8952.5,396.24,41.44,0.11,21.41,-2.48,-2.21,29.46,True,Post-pandemic recovery
+2024,5380500,54227600,True,225628060.0,47988050.0,52.0,True,,,,,,,327843710.0,True,,60.93,,,,,7.76,,,,False,Post-pandemic recovery
+2025,5458500,55131012,True,226980852.0,44539399.0,52.0,True,,,,,,,326651263.0,True,,59.84,,,,,-1.79,,,,False,Post-pandemic recovery

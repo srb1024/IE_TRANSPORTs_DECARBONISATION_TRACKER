@@ -1,0 +1,6 @@
+Year,bau_ev_phev_share_pct,required_ev_phev_share_pct,bau_registrations,required_registrations,additional_registrations_needed,assumed_annual_total_registrations
+2026,31.23,37.57,36947,44450,7503,118302
+2027,31.45,40.68,37207,48125,10918,118302
+2028,31.54,43.79,37313,51800,14487,118302
+2029,31.58,46.89,37357,55476,18119,118302
+2030,31.59,50.0,37374,59151,21777,118302

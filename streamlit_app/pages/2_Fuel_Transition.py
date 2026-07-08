@@ -4,7 +4,7 @@ import streamlit as st
 
 from data_loader import load_table
 from nav import sticky_header
-from style import ACTUAL_LINE, BLUISH_GREEN, DATA_LABEL_FONT, FORECAST_LINE, FUEL_COLORS, ORANGE, PLOTLY_CONFIG, TARGET_LINE, apply_page_style, chart_layout
+from style import ACTUAL_LINE, BLUISH_GREEN, DATA_LABEL_FONT, FORECAST_LINE, FUEL_COLORS, ORANGE, PLOTLY_CONFIG, TARGET_LINE, apply_page_style, chart_layout, stat_card
 
 apply_page_style()
 sticky_header("Fuel Transition", "Fuel Transition")
@@ -81,3 +81,48 @@ with col2:
         fig2.update_layout(xaxis=dict(dtick=2, title="Year"), yaxis_title="Share of registrations (%)")
         st.plotly_chart(fig2, use_container_width=True, config=PLOTLY_CONFIG)
         st.caption(f"Forecast plateaus at {forecast_2030:.1f}% by 2030.")
+        
+        st.subheader("Registrations needed to close the gap", anchor=False)
+st.caption(
+    "Converts the EV/PHEV share gap into an absolute registration count: how "
+    "many additional cars per year, not just what percentage share, is "
+    "needed to stay on the CAP 2030 glide path. Uses a 3-year average "
+    "registration volume assumption and a straight-line glide path to "
+    "target, both flagged as planning assumptions, not model outputs."
+)
+
+reg_gap = load_table("ev_registration_gap").sort_values("Year")
+gap_2030_row = reg_gap.loc[reg_gap["Year"] == reg_gap["Year"].max()]
+additional_2030 = int(gap_2030_row["additional_registrations_needed"].iloc[0])
+total_additional = int(reg_gap["additional_registrations_needed"].sum())
+assumed_volume = int(reg_gap["assumed_annual_total_registrations"].iloc[0])
+
+card_col, chart_col = st.columns([1, 2])
+with card_col:
+    st.markdown(
+        stat_card(
+            f"Additional registrations needed ({int(reg_gap['Year'].max())})",
+            f"{additional_2030:,}",
+            f"{total_additional:,} cumulative, {int(reg_gap['Year'].min())} to {int(reg_gap['Year'].max())}",
+            accent=ORANGE,
+        ),
+        unsafe_allow_html=True,
+    )
+    st.caption(f"Assumes ~{assumed_volume:,} total new registrations/year.")
+
+with chart_col:
+    with st.container(border=True):
+        fig4 = go.Figure()
+        fig4.add_trace(go.Bar(x=reg_gap["Year"], y=reg_gap["bau_registrations"], name="BAU trajectory", marker_color=ORANGE))
+        fig4.add_trace(go.Bar(x=reg_gap["Year"], y=reg_gap["required_registrations"], name="Required for CAP target", marker_color=BLUISH_GREEN))
+        fig4.update_layout(barmode="group")
+        fig4 = chart_layout(fig4, title="EV and hybrid registrations: BAU vs. required", height=340)
+        fig4.update_layout(xaxis=dict(dtick=1, title="Year"), yaxis_title="New registrations")
+        st.plotly_chart(fig4, use_container_width=True, config=PLOTLY_CONFIG)
+
+st.caption(
+    f"By {int(reg_gap['Year'].max())}, BAU reaches roughly "
+    f"{int(gap_2030_row['bau_registrations'].iloc[0]):,} EV/hybrid registrations against a required "
+    f"{int(gap_2030_row['required_registrations'].iloc[0]):,}, a gap of {additional_2030:,} "
+    f"registrations that year alone."
+)

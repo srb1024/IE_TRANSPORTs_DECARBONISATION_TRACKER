@@ -1,6 +1,6 @@
 # Data Quality & Governance Report
 
-_Generated 2026-05-29 18:08 UTC._
+_Generated 2026-07-08 22:53 UTC._
 
 ## Audit log
 
@@ -8,12 +8,15 @@ _Generated 2026-05-29 18:08 UTC._
 - **THA25** — Rail entirely absent for [2019] -> bus-only, flagged.
 - **THA25** — 61 blank weekly cells handled; annual bus/rail for 2019-2025.
 - **THA18** — private-car population summed across engine x fuel x county; car-km kept separately.
+- **THA18** — private-car population summed across engine x fuel x county; car-km kept separately.
+- **THA18** — private-car stock additionally split into Traditional (Petrol+Diesel) vs Non-Traditional (Other fuel types = BEV+PHEV+HEV combined) - a coarse 2-way split; CSO's own THA18 table does not break electrified vehicles down further at the stock level.
 - **THA17** — total vehicle-km & fleet summed across fuel x type x county; km in millions.
 - **TEM12** — year 2026 partial (4/12 months) — shares valid, totals not YoY-comparable.
 - **TEM12** — fuel mix of New Private Cars mapped to tidy groups; BEV/PHEV & electrified shares computed.
 - **TEM22/TEM23** — concatenated to one 2019-2026 series; boundary at 2022; TEM23 aggregate rows used to avoid double-counting.
 - **NaPTAN** — 17621 raw -> 17531 active stops (27 dup AtcoCodes, 0 out-of-bounds removed).
 - **FACT** — annual fact table with 3 KPIs + YoY; core window 2019-2023 tagged.
+- **FACT** — annual fact table with 5 KPIs + YoY; core window 2019-2023 tagged.
 
 ## Key limitations carried into the dashboard
 
