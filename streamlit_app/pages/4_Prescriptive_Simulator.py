@@ -5,15 +5,11 @@ import requests
 import streamlit as st
 
 from data_loader import load_table
-from nav import hide_sidebar, nav_bar, page_heading
-from style import KPI_LABELS, PLOTLY_CONFIG, TARGET_LINE, apply_page_style, chart_layout, stat_card, status_badge
+from nav import sticky_header
+from style import DATA_LABEL_FONT, KPI_LABELS, PLOTLY_CONFIG, TARGET_LINE, apply_page_style, chart_layout, stat_card, status_badge
 
-st.set_page_config(page_title="Prescriptive | Irish Transport Decarbonisation Tracker", page_icon="🧭", layout="wide")
-hide_sidebar()
 apply_page_style()
-
-page_heading("Prescriptive Simulator")
-nav_bar("Prescriptive")
+sticky_header("Prescriptive Simulator", "Prescriptive")
 
 scenarios = load_table("prescriptive_scenarios")
 monte_carlo = load_table("prescriptive_monte_carlo")
@@ -36,27 +32,47 @@ def status(gap, target, direction):
 st.subheader("Scenario comparison", anchor=False)
 cols = st.columns(3)
 for col, (kpi_key, kpi_label) in zip(cols, KPI_LABELS.items()):
-    with col, st.container(border=True):
-        direction = KPI_DIRECTION[kpi_key]
-        scen = scenarios[scenarios["kpi"] == kpi_key].set_index("scenario").loc[SCENARIO_ORDER]
-        mc = monte_carlo[monte_carlo["kpi"] == kpi_key].set_index("scenario").loc[SCENARIO_ORDER]
-        target = scen["gov_target_2030"].iloc[0]
+    with col:
+        with st.container(border=True):
+            direction = KPI_DIRECTION[kpi_key]
+            scen = scenarios[scenarios["kpi"] == kpi_key].set_index("scenario").loc[SCENARIO_ORDER]
+            mc = monte_carlo[monte_carlo["kpi"] == kpi_key].set_index("scenario").loc[SCENARIO_ORDER]
+            target = scen["gov_target_2030"].iloc[0]
 
-        fig = go.Figure(go.Bar(
-            x=SCENARIO_ORDER, y=mc["mean_2030"],
-            error_y=dict(type="data", symmetric=False, array=mc["p95_2030"] - mc["mean_2030"], arrayminus=mc["mean_2030"] - mc["p5_2030"]),
-            marker_color=["#D55E00", "#E69F00", "#009E73"],
-        ))
-        fig.add_trace(go.Scatter(x=SCENARIO_ORDER, y=[target] * 3, mode="lines", name="Target", line=dict(color=TARGET_LINE["color"], dash=TARGET_LINE["dash"], width=TARGET_LINE["width"])))
-        fig = chart_layout(fig, title=kpi_label, height=280)
-        fig.update_layout(showlegend=False, yaxis_title=None)
-        y_max = max(mc["p95_2030"].max(), target) * (1.5 if kpi_key == "car_dependency_index" else 1.2)
-        fig.update_yaxes(range=[0, y_max])
-        st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG, key=f"scenario_{kpi_key}")
+            fig = go.Figure(
+                go.Bar(
+                    x=SCENARIO_ORDER,
+                    y=mc["mean_2030"],
+                    error_y=dict(
+                        type="data",
+                        symmetric=False,
+                        array=mc["p95_2030"] - mc["mean_2030"],
+                        arrayminus=mc["mean_2030"] - mc["p5_2030"],
+                    ),
+                    marker_color=["#D55E00", "#E69F00", "#009E73"],
+                    text=[f"{v:,.0f}" for v in mc["mean_2030"]],
+                    textposition="outside",
+                    textfont=DATA_LABEL_FONT,
+                )
+            )
+            fig.add_trace(
+                go.Scatter(
+                    x=SCENARIO_ORDER,
+                    y=[target] * 3,
+                    mode="lines",
+                    name="Target",
+                    line=dict(color=TARGET_LINE["color"], dash=TARGET_LINE["dash"], width=TARGET_LINE["width"]),
+                )
+            )
+            fig = chart_layout(fig, title=kpi_label, height=340)
+            fig.update_layout(showlegend=False, yaxis_title=None)
+            y_max = max(mc["p95_2030"].max(), target) * (1.6 if kpi_key == "car_dependency_index" else 1.35)
+            fig.update_yaxes(range=[0, y_max])
+            st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG, key=f"scenario_{kpi_key}")
 
-        gap = scen.loc["Accelerated Transition", "gap_to_target"]
-        st.markdown(status_badge(status(gap, target, direction)), unsafe_allow_html=True)
-        st.caption("Best case scenario status shown.")
+            gap = scen.loc["Accelerated Transition", "gap_to_target"]
+            st.markdown(status_badge(status(gap, target, direction)), unsafe_allow_html=True)
+            st.caption("Best case scenario status shown.")
 
 st.subheader("Policy lever sensitivity", anchor=False)
 with st.container(border=True):
@@ -94,11 +110,18 @@ with st.container(border=True):
         matched = filtered.dropna(subset=["geo_name"])
         if len(matched) >= max(5, len(filtered) // 2):
             fig_map = px.choropleth_mapbox(
-                matched, geojson=geojson_data, locations="geo_name",
-                featureidkey=f"properties.{name_key}", color="risk_tier",
-                color_discrete_map=RISK_COLORS, mapbox_style="carto-positron",
-                zoom=5.6, center={"lat": 53.4, "lon": -8.0}, opacity=0.75,
-                hover_name="county", height=430,
+                matched,
+                geojson=geojson_data,
+                locations="geo_name",
+                featureidkey=f"properties.{name_key}",
+                color="risk_tier",
+                color_discrete_map=RISK_COLORS,
+                mapbox_style="carto-positron",
+                zoom=5.6,
+                center={"lat": 53.4, "lon": -8.0},
+                opacity=0.75,
+                hover_name="county",
+                height=440,
             )
             fig_map.update_layout(margin=dict(l=0, r=0, t=10, b=0))
             st.plotly_chart(fig_map, use_container_width=True, config=PLOTLY_CONFIG)
@@ -123,8 +146,16 @@ with st.container(border=True):
         filtered["lon"] = filtered["county"].map(lambda c: COUNTY_COORDS.get(c, (None, None))[1])
         point_data = filtered.dropna(subset=["lat", "lon"])
         fig_map = px.scatter_mapbox(
-            point_data, lat="lat", lon="lon", color="risk_tier", color_discrete_map=RISK_COLORS,
-            size="cars_per_1000", size_max=26, hover_name="county", zoom=5.6, height=430,
+            point_data,
+            lat="lat",
+            lon="lon",
+            color="risk_tier",
+            color_discrete_map=RISK_COLORS,
+            size="cars_per_1000",
+            size_max=26,
+            hover_name="county",
+            zoom=5.6,
+            height=440,
             mapbox_style="open-street-map",
         )
         fig_map.update_layout(margin=dict(l=0, r=0, t=10, b=0))

@@ -1,17 +1,13 @@
-"""Landing page for the Irish Transport Decarbonisation Tracker."""
+"""Home page content."""
 import pandas as pd
 import streamlit as st
 
 from data_loader import PROCESSED_DIR, load_all
-from nav import hide_sidebar, nav_bar, page_heading
+from nav import sticky_header
 from style import apply_page_style
 
-st.set_page_config(page_title="Irish Transport Decarbonisation Tracker", page_icon="🚆", layout="wide")
-hide_sidebar()
 apply_page_style()
-
-page_heading("Home")
-nav_bar("Home")
+sticky_header("Home", "Home")
 
 with st.container(border=True):
     col1, col2, col3, col4 = st.columns(4)
