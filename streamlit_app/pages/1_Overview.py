@@ -204,3 +204,45 @@ st.caption(
     f"over the same period (see Fuel Transition). This is expected: existing petrol and diesel "
     f"cars stay on the road for years, so fleet stock always lags registration trends."
 )
+
+st.subheader("Estimated CO2 avoided", anchor=False)
+st.caption(
+    "Converts the fleet composition split into an estimated CO2 figure. "
+    "Traditional factor: 153 g CO2/km (SEAI average car on road). "
+    "Non-traditional factor: 46.8 g CO2/km well-to-wheel (Brady and O'Mahony, "
+    "2011, Irish EV energy requirement combined with current SEAI grid intensity). "
+    "Treats the whole non-traditional category as BEV-equivalent, a lower bound "
+    "estimate since real HEV and PHEV vehicles still burn some fuel."
+)
+
+co2 = fact[["Year", "co2_avoided_tonnes"]].dropna().sort_values("Year")
+co2_latest_year = int(co2["Year"].max())
+co2_earliest_year = int(co2["Year"].min())
+co2_latest = co2.loc[co2["Year"] == co2_latest_year, "co2_avoided_tonnes"].iloc[0]
+co2_earliest = co2.loc[co2["Year"] == co2_earliest_year, "co2_avoided_tonnes"].iloc[0]
+
+card_col, chart_col = st.columns([1, 2])
+with card_col:
+    st.markdown(
+        stat_card(
+            f"Estimated CO2 avoided ({co2_latest_year})",
+            f"{co2_latest:,.0f} t",
+            f"Up from {co2_earliest:,.0f} t in {co2_earliest_year}",
+            accent=BLUISH_GREEN,
+        ),
+        unsafe_allow_html=True,
+    )
+
+with chart_col:
+    with st.container(border=True):
+        fig5 = go.Figure()
+        fig5.add_trace(
+            go.Bar(
+                x=co2["Year"], y=co2["co2_avoided_tonnes"], marker_color=BLUISH_GREEN,
+                text=[f"{v:,.0f}" for v in co2["co2_avoided_tonnes"]],
+                textposition="outside", textfont=DATA_LABEL_FONT,
+            )
+        )
+        fig5 = chart_layout(fig5, title="Estimated CO2 avoided by the non-traditional fleet", height=340)
+        fig5.update_layout(xaxis=dict(dtick=1, title="Year"), yaxis_title="Tonnes CO2", showlegend=False)
+        st.plotly_chart(fig5, use_container_width=True, config=PLOTLY_CONFIG)

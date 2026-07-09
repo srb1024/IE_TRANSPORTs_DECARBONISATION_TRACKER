@@ -92,11 +92,11 @@ with row2[1]:
         sarima_sorted = sarima.sort_values("Date").reset_index(drop=True)
         mape_sarima = sarima_sorted["MAPE_pct"].iloc[0]
 
-        label_months = {(2023, 1), (2023, 7), (2024, 1), (2024, 7), (2025, 1), (2025, 7), (2026, 1)}
+        label_months = {(2023, 1), (2023, 4), (2023, 7), (2023, 10)}
         month_year = list(zip(sarima_sorted["Date"].dt.year, sarima_sorted["Date"].dt.month))
         sarima_labels = [
-            f"{v/1e6:.1f}M" if my in label_months else ""
-            for v, my in zip(sarima_sorted["pt_journeys_forecast"], month_year)
+        f"{v/1e6:.1f}M" if my in label_months else ""
+        for v, my in zip(sarima_sorted["pt_journeys_forecast"], month_year)
         ]
 
         fig2 = go.Figure()
@@ -126,8 +126,9 @@ with row2[1]:
         fig2.update_layout(yaxis_title="Journeys", xaxis_title="Month")
         st.plotly_chart(fig2, use_container_width=True, config=PLOTLY_CONFIG, key="sarima_chart")
 
-        negative_months = int((sarima_sorted["ci_lower"] < 0).sum())
-        caption = f"Holdout MAPE {mape_sarima:.2f}%. Labelled months: Jan and Jul each year, 2023 to 2025."
-        if negative_months:
-            caption += f" Lower bound dips below zero for {negative_months} months near the end of the horizon, reflecting wide uncertainty rather than a real possibility."
+        caption = (
+            f"Holdout MAPE {mape_sarima:.2f}%. 12-month forecast horizon, deliberately "
+            f"short given roughly 2 clean non-COVID training years, forecasting further "
+            f"out would have overreached what that training window can support."
+        )
         st.caption(caption)

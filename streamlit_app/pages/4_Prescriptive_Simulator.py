@@ -92,6 +92,83 @@ with st.container(border=True):
     st.dataframe(reverse_solve[list(display_cols)].rename(columns=display_cols), use_container_width=True, hide_index=True)
     st.caption("CDI shows a negative required EV rate since EV adoption changes fuel type rather than car ownership so it cannot move CDI alone. A few other values look counterintuitive and are worth checking against notebook 04 before quoting.")
 
+st.subheader("EV adoption by income tier", anchor=False)
+st.caption(
+    "Solid line: fitted S-curve over the actual 2018-2023 training data. "
+    "Dashed line: forecast to 2030. Fleet-stock basis (Other fuel types = "
+    "BEV+PHEV+HEV combined), a different basis to the national "
+    "registrations-flow EV share on the Fuel Transition page, the two are "
+    "not directly comparable."
+)
+
+tier_forecast = load_table("ev_income_tier_forecast")
+TIER_COLORS = {"High": "#0072B2", "Medium": "#E69F00", "Low": "#D55E00"}
+TIER_ORDER = ["High", "Medium", "Low"]
+
+with st.container(border=True):
+    card_col, chart_col = st.columns([1, 2])
+
+    with card_col:
+        for tier in TIER_ORDER:
+            val_2030 = tier_forecast.loc[
+                (tier_forecast["income_tier"] == tier) & (tier_forecast["Year"] == 2030),
+                "other_fuel_share_forecast_pct"
+            ].iloc[0]
+            st.markdown(
+                stat_card(f"{tier} income, 2030", f"{val_2030:.1f}%", accent=TIER_COLORS[tier]),
+                unsafe_allow_html=True,
+            )
+
+        high_2030 = tier_forecast.loc[
+            (tier_forecast["income_tier"] == "High") & (tier_forecast["Year"] == 2030),
+            "other_fuel_share_forecast_pct"
+        ].iloc[0]
+        low_2030 = tier_forecast.loc[
+            (tier_forecast["income_tier"] == "Low") & (tier_forecast["Year"] == 2030),
+            "other_fuel_share_forecast_pct"
+        ].iloc[0]
+        st.markdown(
+            stat_card("Equity gap (High minus Low), 2030", f"{high_2030 - low_2030:.1f}pp", accent="#CC79A7"),
+            unsafe_allow_html=True,
+        )
+
+    with chart_col:
+        fig6 = go.Figure()
+        for tier in TIER_ORDER:
+            tier_data = tier_forecast[tier_forecast["income_tier"] == tier].sort_values("Year")
+            # Solid segment: 2018-2023, the actual fitted training range.
+            solid = tier_data[tier_data["Year"] <= 2023]
+            # Dashed segment: 2023-2030, includes 2023 itself so the two
+            # segments share an anchor point and connect with no visual gap.
+            dashed = tier_data[tier_data["Year"] >= 2023]
+
+            fig6.add_trace(
+                go.Scatter(
+                    x=solid["Year"], y=solid["other_fuel_share_forecast_pct"],
+                    mode="lines+markers", name=f"{tier} income",
+                    line=dict(color=TIER_COLORS[tier], width=3, dash="solid"),
+                    legendgroup=tier,
+                )
+            )
+            fig6.add_trace(
+                go.Scatter(
+                    x=dashed["Year"], y=dashed["other_fuel_share_forecast_pct"],
+                    mode="lines+markers", name=f"{tier} income (forecast)",
+                    line=dict(color=TIER_COLORS[tier], width=3, dash="dot"),
+                    legendgroup=tier, showlegend=False,
+                )
+            )
+        fig6 = chart_layout(fig6, title="Non-traditional fleet share by income tier: fitted + forecast", height=340)
+        fig6.update_layout(xaxis=dict(dtick=1, title="Year"), yaxis_title="Share (%)")
+        st.plotly_chart(fig6, use_container_width=True, config=PLOTLY_CONFIG)
+
+    st.caption(
+        f"The gap persists even at each tier's long-run ceiling, not just in "
+        f"early timing: High-income counties are projected to reach a higher "
+        f"saturation point than Low-income counties, {high_2030 - low_2030:.1f} "
+        f"percentage points apart by 2030."
+    )
+
 st.subheader("County priority map", anchor=False)
 with st.container(border=True):
     tiers = sorted(county["risk_tier"].unique(), key=lambda t: county.loc[county["risk_tier"] == t, "priority"].iloc[0])

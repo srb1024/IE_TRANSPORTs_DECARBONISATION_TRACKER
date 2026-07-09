@@ -1,10 +1,10 @@
 scenario,kpi,kpi_label,projected_2030,gov_target_2030,gap_to_target
-Business-As-Usual,car_dependency_index,Car Dependency Index,437.68,380,-57.68
-Business-As-Usual,pt_usage_index,PT Usage Index,56.54,90,33.46
-Business-As-Usual,transport_intensity_index,Transport Intensity Index,8952.5,7000,-1952.5
-Moderate Intervention,car_dependency_index,Car Dependency Index,437.89,380,-57.89
-Moderate Intervention,pt_usage_index,PT Usage Index,60.92,90,29.08
-Moderate Intervention,transport_intensity_index,Transport Intensity Index,8682.95,7000,-1682.95
-Accelerated Transition,car_dependency_index,Car Dependency Index,438.3,380,-58.3
-Accelerated Transition,pt_usage_index,PT Usage Index,69.68,90,20.32
-Accelerated Transition,transport_intensity_index,Transport Intensity Index,8143.85,7000,-1143.85
+Business-As-Usual,car_dependency_index,Car Dependency Index,438.15,380,-58.15
+Business-As-Usual,pt_usage_index,PT Usage Index,56.06,90,33.94
+Business-As-Usual,transport_intensity_index,Transport Intensity Index,9150.41,7000,-2150.41
+Moderate Intervention,car_dependency_index,Car Dependency Index,439.05,380,-59.05
+Moderate Intervention,pt_usage_index,PT Usage Index,59.72,90,30.28
+Moderate Intervention,transport_intensity_index,Transport Intensity Index,9175.2,7000,-2175.2
+Accelerated Transition,car_dependency_index,Car Dependency Index,440.86,380,-60.86
+Accelerated Transition,pt_usage_index,PT Usage Index,67.04,90,22.96
+Accelerated Transition,transport_intensity_index,Transport Intensity Index,9224.79,7000,-2224.79
