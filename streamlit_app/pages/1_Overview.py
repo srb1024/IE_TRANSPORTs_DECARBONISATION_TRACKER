@@ -144,96 +144,40 @@ c4.markdown(
     unsafe_allow_html=True,
 )
 
-st.subheader("Fleet composition: Traditional vs Non-Traditional", anchor=False)
-st.caption(
-    "Traditional = Petrol + Diesel fleet stock. Non-Traditional = BEV + PHEV + HEV "
-    "fleet stock, all folded into one CSO category at the stock level, unlike the "
-    "registrations breakdown on the Fuel Transition page."
-)
+col_a, col_b = st.columns(2)
 
-comp = fact[["Year", "traditional_cdi", "non_traditional_cdi"]].dropna().sort_values("Year")
-comp_latest_year = int(comp["Year"].max())
-comp_earliest_year = int(comp["Year"].min())
+with col_a:
+    st.subheader("Fleet Composition", anchor=False)
+    comp = fact[["Year", "traditional_cdi", "non_traditional_cdi"]].dropna().sort_values("Year")
+    comp_share = comp["non_traditional_cdi"] / (comp["traditional_cdi"] + comp["non_traditional_cdi"]) * 100
+    comp_total = comp["traditional_cdi"] + comp["non_traditional_cdi"]
 
-latest_row = comp.loc[comp["Year"] == comp_latest_year].iloc[0]
-earliest_row = comp.loc[comp["Year"] == comp_earliest_year].iloc[0]
-latest_share = latest_row["non_traditional_cdi"] / (latest_row["traditional_cdi"] + latest_row["non_traditional_cdi"]) * 100
-earliest_share = earliest_row["non_traditional_cdi"] / (earliest_row["traditional_cdi"] + earliest_row["non_traditional_cdi"]) * 100
-
-card_col, chart_col = st.columns([1, 2])
-with card_col:
-    st.markdown(
-        stat_card(
-            "Non-traditional fleet share",
-            f"{latest_share:.1f}%",
-            f"Up from {earliest_share:.1f}% in {comp_earliest_year}",
-            accent=BLUISH_GREEN,
-        ),
-        unsafe_allow_html=True,
-    )
-
-with chart_col:
     with st.container(border=True):
-        comp_share = comp["non_traditional_cdi"] / (comp["traditional_cdi"] + comp["non_traditional_cdi"]) * 100
-        comp_total = comp["traditional_cdi"] + comp["non_traditional_cdi"]
-
         fig3 = go.Figure()
         fig3.add_trace(go.Bar(x=comp["Year"], y=comp["traditional_cdi"], name="Traditional (Petrol + Diesel)", marker_color=VERMILLION))
         fig3.add_trace(go.Bar(x=comp["Year"], y=comp["non_traditional_cdi"], name="Non-Traditional (EV + Hybrid + PHEV)", marker_color=BLUISH_GREEN))
         fig3.update_layout(barmode="stack")
 
-        # The non-traditional slice is too thin against the total to read its
-        # growth by eye alone, so label the share % above each bar directly.
         for yr, share, total in zip(comp["Year"], comp_share, comp_total):
             fig3.add_annotation(
-                x=yr, y=total + comp_total.max() * 0.04,
+                x=yr, y=total + comp_total.max() * 0.12,
                 text=f"{share:.1f}%", showarrow=False,
-                font=dict(size=13, color="#1A2332"),
+                font=DATA_LABEL_FONT,
             )
 
-        fig3 = chart_layout(fig3, title="Fleet composition, cars per 1,000 population", height=340)
+        fig3 = chart_layout(fig3, title="Cars per 1,000 population", height=380)
         fig3.update_layout(
             xaxis=dict(dtick=1, title="Year"),
-            yaxis=dict(title="Cars per 1,000 population", range=[0, comp_total.max() * 1.12]),
+            yaxis=dict(title="Cars per 1,000 population", range=[0, comp_total.max() * 1.30]),
+            legend=dict(orientation="h", yanchor="top", y=-0.20, xanchor="center", x=0.5),
+            margin=dict(t=45, l=10, r=10, b=90),
         )
         st.plotly_chart(fig3, use_container_width=True, config=PLOTLY_CONFIG)
 
-st.caption(
-    f"Non-traditional stock share grew from {earliest_share:.1f}% in {comp_earliest_year} to "
-    f"{latest_share:.1f}% in {comp_latest_year}, far slower than new-registration EV/PHEV share "
-    f"over the same period (see Fuel Transition). This is expected: existing petrol and diesel "
-    f"cars stay on the road for years, so fleet stock always lags registration trends."
-)
+with col_b:
+    st.subheader("Estimated CO2 Avoided", anchor=False)
+    co2 = fact[["Year", "co2_avoided_tonnes"]].dropna().sort_values("Year")
 
-st.subheader("Estimated CO2 avoided", anchor=False)
-st.caption(
-    "Converts the fleet composition split into an estimated CO2 figure. "
-    "Traditional factor: 153 g CO2/km (SEAI average car on road). "
-    "Non-traditional factor: 46.8 g CO2/km well-to-wheel (Brady and O'Mahony, "
-    "2011, Irish EV energy requirement combined with current SEAI grid intensity). "
-    "Treats the whole non-traditional category as BEV-equivalent, a lower bound "
-    "estimate since real HEV and PHEV vehicles still burn some fuel."
-)
-
-co2 = fact[["Year", "co2_avoided_tonnes"]].dropna().sort_values("Year")
-co2_latest_year = int(co2["Year"].max())
-co2_earliest_year = int(co2["Year"].min())
-co2_latest = co2.loc[co2["Year"] == co2_latest_year, "co2_avoided_tonnes"].iloc[0]
-co2_earliest = co2.loc[co2["Year"] == co2_earliest_year, "co2_avoided_tonnes"].iloc[0]
-
-card_col, chart_col = st.columns([1, 2])
-with card_col:
-    st.markdown(
-        stat_card(
-            f"Estimated CO2 avoided ({co2_latest_year})",
-            f"{co2_latest:,.0f} t",
-            f"Up from {co2_earliest:,.0f} t in {co2_earliest_year}",
-            accent=BLUISH_GREEN,
-        ),
-        unsafe_allow_html=True,
-    )
-
-with chart_col:
     with st.container(border=True):
         fig5 = go.Figure()
         fig5.add_trace(
@@ -243,6 +187,6 @@ with chart_col:
                 textposition="outside", textfont=DATA_LABEL_FONT,
             )
         )
-        fig5 = chart_layout(fig5, title="Estimated CO2 avoided by the non-traditional fleet", height=340)
+        fig5 = chart_layout(fig5, title="Tonnes CO2 avoided by year", height=380)
         fig5.update_layout(xaxis=dict(dtick=1, title="Year"), yaxis_title="Tonnes CO2", showlegend=False)
         st.plotly_chart(fig5, use_container_width=True, config=PLOTLY_CONFIG)

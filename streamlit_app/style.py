@@ -91,8 +91,8 @@ def kpi_circle_card(title: str, subtitle: str, value: str, delta_pct, circle_col
         f'padding:16px 18px; min-height:136px; display:flex; flex-direction:column; '
         f'justify-content:space-between;">'
         f'<div>'
-        f'<div style="font-weight:700; font-size:1.05rem; color:#1A2332;">{title}</div>'
-        f'<div style="color:{GREY}; font-size:0.85rem;">{subtitle}</div>'
+        f'<div style="font-weight:700; font-size:1.35rem; color:#1A2332;">{title}</div>'
+        f'<div style="color:{GREY}; font-size:1.05rem;">{subtitle}</div>'
         f'</div>'
         f'<div style="display:flex; align-items:center; gap:12px; margin-top:8px;">'
         f'<div style="width:36px; height:36px; min-width:36px; border-radius:50%; background:{circle_color}55;"></div>'
@@ -108,8 +108,10 @@ def apply_page_style() -> None:
         """
         <style>
         .stApp { background-color: #FFFFFF; }
-        .block-container {
-            padding-top: 0.6rem;
+        header[data-testid="stHeader"] { display: none !important; }
+        .stAppHeader { display: none !important; }
+        .block-container, .stMainBlockContainer {
+            padding-top: 8.5rem !important;
             padding-bottom: 2rem;
             padding-left: 2rem;
             padding-right: 2rem;
@@ -134,7 +136,13 @@ def apply_page_style() -> None:
         }
         div[data-testid="stMetricLabel"] { font-weight: 600; font-size: 1.0rem; }
         div[data-testid="stMetricValue"] { font-size: 2.2rem; font-weight: 700; }
-        h1, h2, h3 { letter-spacing: -0.01em; }
+        h1, h2 { letter-spacing: -0.01em; }
+        h3 {
+            letter-spacing: -0.01em;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1A2332;
+        }
         div[data-testid="stVerticalBlockBorderWrapper"] {
             border-radius: 12px;
             padding: 6px;
@@ -163,16 +171,16 @@ def add_covid_highlight(fig):
 
 def chart_layout(fig, title: str, height: int = 340):
     fig.update_layout(
-        title=dict(text=title, font=dict(size=15)),
+        title=dict(text=title, font=dict(size=20)),
         height=height,
         font=dict(family="Arial, sans-serif", size=13, color="#1A2332"),
-        legend=dict(orientation="h", yanchor="bottom", y=1.05, xanchor="center", x=0.5),
-        margin=dict(t=40, l=10, r=10, b=55),
+        legend=dict(orientation="h", yanchor="top", y=-0.2, xanchor="center", x=0.5, font=dict(size=15)),
+        margin=dict(t=45, l=10, r=10, b=85),
         plot_bgcolor="white",
         paper_bgcolor="white",
         hovermode="x unified",
     )
-    fig.update_xaxes(showgrid=True, gridcolor=GRID_GREY)
-    fig.update_yaxes(showgrid=True, gridcolor=GRID_GREY)
+    fig.update_xaxes(showgrid=True, gridcolor=GRID_GREY, title_font=dict(size=15))
+    fig.update_yaxes(showgrid=True, gridcolor=GRID_GREY, title_font=dict(size=15))
     return fig
 

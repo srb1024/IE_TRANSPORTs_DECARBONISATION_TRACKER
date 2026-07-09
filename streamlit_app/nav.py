@@ -12,24 +12,55 @@ PAGES = [
 
 def sticky_header(page_title: str, current: str) -> None:
     """Render the page heading and nav bar together, pinned to the top of
-    the viewport on scroll. st.container(key=...) puts its CSS class on an
-    inner wrapper rather than the outer scrolling div, so this targets the
-    outer div via :has() instead of the marked element directly. This is a
-    community CSS workaround, not an official Streamlit API, so it can
-    behave slightly differently across Streamlit versions.
+    the viewport on scroll. The navy banner is full-bleed (edge to edge),
+    the nav row underneath it is inset with the same 2rem side padding as
+    the page's own .block-container, so its left/right edges line up
+    exactly with the content below.
     """
     st.markdown(
         """
         <style>
-        div:has(> div.st-key-sticky_header),
-        div:has(> div > div.st-key-sticky_header) {
-            position: sticky;
+        div.st-key-sticky_header {
+            position: fixed;
             top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
             z-index: 999;
             background-color: #FFFFFF;
-            padding-top: 0.4rem;
-            padding-bottom: 0.4rem;
-            border-bottom: 1px solid #E3E6EA;
+            box-sizing: border-box;
+            padding: 0;
+        }
+        div.st-key-nav_row {
+            padding: 0 2rem;
+            box-sizing: border-box;
+        }
+        button[kind="secondary"],
+        div.nav-active {
+            min-height: 3rem;
+            padding: 0.55rem 0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            text-transform: uppercase !important;
+            letter-spacing: 0.03em !important;
+            font-size: 1.3rem !important;
+            font-weight: 700 !important;
+            line-height: 1 !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        button[kind="secondary"] {
+            font-size: 1.3rem !important;
+        }
+        button[kind="secondary"] p,
+        button[kind="secondary"] span {
+            font-size: 1.3rem !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.03em !important;
+            line-height: 1 !important;
+            margin: 0 !important;
         }
         </style>
         """,
@@ -37,21 +68,24 @@ def sticky_header(page_title: str, current: str) -> None:
     )
     with st.container(key="sticky_header"):
         st.markdown(
-            f"<h1 style='text-align:center; font-size:1.75rem; margin-top:0; margin-bottom:0.6rem;'>"
-            f"IRISH TRANSPORT DECARBONISATION TRACKER - {page_title.upper()}</h1>",
+            "<div style='background-color:#1A2332; padding:1.1rem 2rem; "
+            "text-align:center; margin-bottom:0.8rem;'>"
+            "<h1 style='color:white; font-size:2.2rem; margin:0; letter-spacing:0.02em;'>"
+            "IRISH TRANSPORT DECARBONISATION TRACKER</h1></div>",
             unsafe_allow_html=True,
         )
-        cols = st.columns(len(PAGES))
-        for col, (path, label) in zip(cols, PAGES):
-            with col:
-                if label == current:
-                    st.markdown(
-                        f'<div style="background:#1A2332; color:white; text-align:center; '
-                        f'padding:10px 0; border-radius:8px; font-weight:700; font-size:1.02rem;">'
-                        f'{label}</div>',
-                        unsafe_allow_html=True,
-                    )
-                else:
-                    if st.button(label, key=f"nav_{label}", use_container_width=True):
-                        st.switch_page(path)
+        with st.container(key="nav_row"):
+            cols = st.columns(len(PAGES))
+            for col, (path, label) in zip(cols, PAGES):
+                with col:
+                    if label == current:
+                        st.markdown(
+                            f'<div class="nav-active" style="background:#1A2332; color:white; '
+                            f'text-align:center; border:1px solid transparent;">'
+                            f'{label}</div>',
+                            unsafe_allow_html=True,
+                        )
+                    else:
+                        if st.button(label, key=f"nav_{label}", use_container_width=True):
+                            st.switch_page(path)
     st.divider()

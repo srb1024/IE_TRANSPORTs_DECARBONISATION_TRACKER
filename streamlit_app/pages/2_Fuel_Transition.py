@@ -81,8 +81,8 @@ with col2:
         fig2.update_layout(xaxis=dict(dtick=2, title="Year"), yaxis_title="Share of registrations (%)")
         st.plotly_chart(fig2, use_container_width=True, config=PLOTLY_CONFIG)
         st.caption(f"Forecast plateaus at {forecast_2030:.1f}% by 2030.")
-        
-        st.subheader("Registrations needed to close the gap", anchor=False)
+
+st.subheader("Registrations needed to close the gap", anchor=False)
 st.caption(
     "Converts the EV/PHEV share gap into an absolute registration count: how "
     "many additional cars per year, not just what percentage share, is "
@@ -113,11 +113,26 @@ with card_col:
 with chart_col:
     with st.container(border=True):
         fig4 = go.Figure()
-        fig4.add_trace(go.Bar(x=reg_gap["Year"], y=reg_gap["bau_registrations"], name="BAU trajectory", marker_color=ORANGE))
-        fig4.add_trace(go.Bar(x=reg_gap["Year"], y=reg_gap["required_registrations"], name="Required for CAP target", marker_color=BLUISH_GREEN))
+        fig4.add_trace(
+            go.Bar(
+                x=reg_gap["Year"], y=reg_gap["bau_registrations"], name="BAU trajectory", marker_color=ORANGE,
+                text=[f"{v:,.0f}" for v in reg_gap["bau_registrations"]],
+                textposition="outside", textfont=DATA_LABEL_FONT,
+            )
+        )
+        fig4.add_trace(
+            go.Bar(
+                x=reg_gap["Year"], y=reg_gap["required_registrations"], name="Required for CAP target", marker_color=BLUISH_GREEN,
+                text=[f"{v:,.0f}" for v in reg_gap["required_registrations"]],
+                textposition="outside", textfont=DATA_LABEL_FONT,
+            )
+        )
         fig4.update_layout(barmode="group")
         fig4 = chart_layout(fig4, title="EV and hybrid registrations: BAU vs. required", height=340)
-        fig4.update_layout(xaxis=dict(dtick=1, title="Year"), yaxis_title="New registrations")
+        fig4.update_layout(
+            xaxis=dict(dtick=1, title="Year"),
+            yaxis=dict(title="New registrations", range=[0, reg_gap["required_registrations"].max() * 1.2]),
+        )
         st.plotly_chart(fig4, use_container_width=True, config=PLOTLY_CONFIG)
 
 st.caption(

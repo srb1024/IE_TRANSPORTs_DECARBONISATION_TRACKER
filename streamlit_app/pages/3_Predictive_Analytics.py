@@ -60,7 +60,16 @@ def hw_chart(kpi_key, kpi_label, height=340):
         )
     fig = add_covid_highlight(fig)
     fig = chart_layout(fig, title=kpi_label, height=height)
-    fig.update_layout(xaxis=dict(dtick=2, title="Year"), yaxis_title=KPI_UNITS[kpi_key])
+
+    # Data labels sit above each marker (textposition="top center"), but
+    # Plotly's auto y-range only considers the values themselves, not the
+    # label text drawn above them, so the peak point's label was getting
+    # clipped by the plot's top edge. Extra headroom above the max fixes it.
+    all_vals = pd.concat([actual[kpi_key], pd.Series(fy)])
+    span = all_vals.max() - all_vals.min()
+    y_range = [all_vals.min() - span * 0.08, all_vals.max() + span * 0.20]
+
+    fig.update_layout(xaxis=dict(dtick=2, title="Year"), yaxis=dict(title=KPI_UNITS[kpi_key], range=y_range))
     return fig, mape
 
 
