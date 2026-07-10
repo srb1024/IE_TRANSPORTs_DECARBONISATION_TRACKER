@@ -88,4 +88,10 @@ def sticky_header(page_title: str, current: str) -> None:
                     else:
                         if st.button(label, key=f"nav_{label}", use_container_width=True):
                             st.switch_page(path)
-    st.divider()
+    # The header above is position:fixed, which removes it from normal page
+    # flow entirely, so nothing after it here knows to leave room for it.
+    # This spacer pushes the divider and all page content down by roughly
+    # the fixed header's own height, so real content stops rendering
+    # underneath it.
+    st.markdown('<div style="height:70px;"></div>', unsafe_allow_html=True)
+    

@@ -7,7 +7,7 @@ from data_loader import load_table
 from nav import sticky_header
 from style import (
     ACTUAL_LINE, BLUE, DATA_LABEL_FONT, FORECAST_LINE, KPI_COLORS, KPI_FORECAST_COLORS, KPI_LABELS, KPI_UNITS,
-    PLOTLY_CONFIG, add_covid_highlight, apply_page_style, chart_layout,
+    PLOTLY_CONFIG, add_covid_highlight, apply_page_style, chart_heading, chart_layout, chart_subheading,
 )
 
 apply_page_style()
@@ -59,53 +59,53 @@ def hw_chart(kpi_key, kpi_label, height=340):
             )
         )
     fig = add_covid_highlight(fig)
-    fig = chart_layout(fig, title=kpi_label, height=height)
+    fig = chart_layout(fig, height=height)
 
-    # Data labels sit above each marker (textposition="top center"), but
-    # Plotly's auto y-range only considers the values themselves, not the
-    # label text drawn above them, so the peak point's label was getting
-    # clipped by the plot's top edge. Extra headroom above the max fixes it.
     all_vals = pd.concat([actual[kpi_key], pd.Series(fy)])
     span = all_vals.max() - all_vals.min()
     y_range = [all_vals.min() - span * 0.08, all_vals.max() + span * 0.20]
-
     fig.update_layout(xaxis=dict(dtick=2, title="Year"), yaxis=dict(title=KPI_UNITS[kpi_key], range=y_range))
-    return fig, mape
 
+    subheading = f"{kpi_label}, actual vs Holt-Winters forecast."
+    return fig, mape, subheading
+st.divider()
 
 row1 = st.columns(2)
 with row1[0]:
     with st.container(border=True):
-        fig, mape = hw_chart("car_dependency_index", "Car Dependency Index (Holt-Winters)")
+        fig, mape, subheading = hw_chart("car_dependency_index", "Car Dependency Index (Holt-Winters)")
+        chart_heading("Car Dependency Index")
+        chart_subheading(subheading)
         st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG, key="cdi_chart")
-        if mape is not None:
-            st.caption(f"Holdout MAPE {mape:.2f}%")
 
 with row1[1]:
     with st.container(border=True):
-        fig, mape = hw_chart("transport_intensity_index", "Transport Intensity Indicator (Holt-Winters)")
+        fig, mape, subheading = hw_chart("transport_intensity_index", "Transport Intensity Indicator (Holt-Winters)")
+        chart_heading("Transport Intensity Indicator")
+        chart_subheading(subheading)
         st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG, key="tii_chart")
-        if mape is not None:
-            st.caption(f"Holdout MAPE {mape:.2f}%")
 
 row2 = st.columns(2)
 with row2[0]:
     with st.container(border=True):
-        fig, mape = hw_chart("pt_usage_index", "Public Transport Usage Index (Holt-Winters)")
+        fig, mape, subheading = hw_chart("pt_usage_index", "Public Transport Usage Index (Holt-Winters)")
+        chart_heading("Public Transport Usage Index")
+        chart_subheading(subheading)
         st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG, key="ptui_chart")
-        if mape is not None:
-            st.caption(f"Holdout MAPE {mape:.2f}%")
 
 with row2[1]:
     with st.container(border=True):
+        chart_heading("Monthly PT Journeys (SARIMA)")
+        chart_subheading("Monthly public transport journeys, SARIMA forecast with 95% confidence interval.")
+
         sarima_sorted = sarima.sort_values("Date").reset_index(drop=True)
         mape_sarima = sarima_sorted["MAPE_pct"].iloc[0]
 
         label_months = {(2023, 1), (2023, 4), (2023, 7), (2023, 10)}
         month_year = list(zip(sarima_sorted["Date"].dt.year, sarima_sorted["Date"].dt.month))
         sarima_labels = [
-        f"{v/1e6:.1f}M" if my in label_months else ""
-        for v, my in zip(sarima_sorted["pt_journeys_forecast"], month_year)
+            f"{v/1e6:.1f}M" if my in label_months else ""
+            for v, my in zip(sarima_sorted["pt_journeys_forecast"], month_year)
         ]
 
         fig2 = go.Figure()
@@ -131,13 +131,6 @@ with row2[1]:
                 textfont=DATA_LABEL_FONT,
             )
         )
-        fig2 = chart_layout(fig2, title="Monthly PT Journeys (SARIMA)", height=340)
+        fig2 = chart_layout(fig2, height=340)
         fig2.update_layout(yaxis_title="Journeys", xaxis_title="Month")
         st.plotly_chart(fig2, use_container_width=True, config=PLOTLY_CONFIG, key="sarima_chart")
-
-        caption = (
-            f"Holdout MAPE {mape_sarima:.2f}%. 12-month forecast horizon, deliberately "
-            f"short given roughly 2 clean non-COVID training years, forecasting further "
-            f"out would have overreached what that training window can support."
-        )
-        st.caption(caption)

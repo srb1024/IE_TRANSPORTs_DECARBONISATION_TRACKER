@@ -6,8 +6,9 @@ import streamlit as st
 from data_loader import load_table
 from nav import sticky_header
 from style import (
-    ACTUAL_LINE, BLUE, BLUISH_GREEN, DATA_LABEL_FONT, KPI_COLORS, KPI_LABELS, ORANGE, PLOTLY_CONFIG,
-    VERMILLION, add_covid_highlight, apply_page_style, chart_layout, kpi_circle_card, stat_card,
+    ACTUAL_LINE, BLUE, BLUISH_GREEN, DATA_LABEL_FONT, KPI_COLORS, KPI_LABELS, KPI_MARKERS, ORANGE, PLOTLY_CONFIG,
+    VERMILLION, add_covid_highlight, apply_page_style, chart_heading, chart_layout, chart_subheading,
+    kpi_circle_card, stat_card,
 )
 
 apply_page_style()
@@ -19,7 +20,28 @@ ev_forecast = load_table("ev_forecast")
 county = load_table("county_recommendations")
 
 core = fact[fact["Year"].between(2019, 2023)].sort_values("Year").reset_index(drop=True)
-year = st.select_slider("Year", options=core["Year"].tolist(), value=2023)
+year_options = core["Year"].tolist()
+
+if "overview_year" not in st.session_state:
+    st.session_state.overview_year = year_options[-1]
+
+st.divider()
+
+pill_cols = st.columns([2, 2] + [1] * len(year_options) + [2, 2])
+for i, yr in enumerate(year_options):
+    with pill_cols[i + 2]:
+        if yr == st.session_state.overview_year:
+            st.markdown(
+                f'<div style="background:#1A2332; color:white; text-align:center; '
+                f'padding:8px 0; border-radius:8px; font-weight:700; font-size:1.02rem; '
+                f'border:1px solid #1A2332; box-sizing:border-box;">{yr}</div>',
+                unsafe_allow_html=True,
+            )
+        else:
+            if st.button(str(yr), key=f"yr_pill_{yr}", use_container_width=True):
+                st.session_state.overview_year = yr
+                st.rerun()
+year = st.session_state.overview_year
 row = core.loc[core["Year"] == year].iloc[0]
 baseline_row = core.loc[core["Year"] == 2019].iloc[0]
 
@@ -32,7 +54,7 @@ def pct_since_2019(kpi_key):
     return (cur_val / base_val - 1) * 100
 
 
-with st.container(border=True):
+with st.container(border=True, key="kpi_cards_box"):
     c1, c2, c3 = st.columns(3)
     c1.markdown(
         kpi_circle_card(
@@ -65,7 +87,6 @@ with st.container(border=True):
         ),
         unsafe_allow_html=True,
     )
-    st.caption("Delta shown is the percentage change versus the 2019 baseline: (value for the selected year divided by the 2019 value) times 100, minus 100.")
 
 indexed = core.copy()
 for kpi in KPI_LABELS:
@@ -75,42 +96,40 @@ for kpi in KPI_LABELS:
 chart_col, side_col = st.columns([2, 1])
 with chart_col:
     with st.container(border=True):
+        chart_heading("KPIs indexed to 2019")
+        chart_subheading("Shows how each KPI has moved relative to its own 2019 level, on a common scale.")
+
         fig = go.Figure()
         for kpi, label in KPI_LABELS.items():
             fig.add_trace(
                 go.Scatter(
-                    x=indexed["Year"],
-                    y=indexed[f"{kpi}_idx"],
-                    mode="lines+markers",
+                    x=indexed["Year"], y=indexed[f"{kpi}_idx"], mode="lines+markers",
                     name=label,
                     line=dict(color=KPI_COLORS[kpi], **ACTUAL_LINE),
+                    marker=dict(symbol=KPI_MARKERS[kpi], size=9),
                 )
             )
         fig = add_covid_highlight(fig)
-        fig = chart_layout(fig, title="KPIs indexed to 2019", height=380)
-        fig.update_layout(
-            legend=dict(orientation="h", yanchor="top", y=-0.22, xanchor="center", x=0.5),
-            margin=dict(t=40, l=10, r=10, b=90),
-            xaxis=dict(dtick=1, title="Year"),
-            yaxis_title="Index (2019 = 100)",
-        )
+        fig = chart_layout(fig, height=380)
+        fig.update_layout(xaxis=dict(dtick=1, title="Year"), yaxis_title="Index (2019 = 100)")
         st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
 
 with side_col:
     with st.container(border=True):
+        chart_heading(f"% change since 2019 - {year}")
+        chart_subheading("Percentage change for each KPI in the selected year, relative to 2019.")
+
         pct_vals = [pct_since_2019(k) or 0 for k in KPI_LABELS]
-        fig2 = go.Figure(
-            go.Bar(
-                x=list(KPI_LABELS.values()),
-                y=pct_vals,
-                marker_color=list(KPI_COLORS.values()),
-                text=[f"{v:+.1f}%" for v in pct_vals],
-                textposition="outside",
-                textfont=DATA_LABEL_FONT,
+        fig2 = go.Figure()
+        for (kpi, label), pct_val in zip(KPI_LABELS.items(), pct_vals):
+            fig2.add_trace(
+                go.Bar(
+                    x=[label], y=[pct_val], name=label, marker_color=KPI_COLORS[kpi], showlegend=True,
+                    text=[f"{pct_val:+.1f}%"], textposition="outside", textfont=DATA_LABEL_FONT,
+                )
             )
-        )
-        fig2 = chart_layout(fig2, title=f"% change since 2019, {year}", height=380)
-        fig2.update_layout(yaxis_title="% change since 2019", xaxis_title=None)
+        fig2 = chart_layout(fig2, height=380)
+        fig2.update_layout(yaxis_title="% change since 2019", xaxis=dict(visible=False, showticklabels=False, title=None))
         st.plotly_chart(fig2, use_container_width=True, config=PLOTLY_CONFIG)
 
 st.subheader("At a glance", anchor=False)
@@ -144,15 +163,19 @@ c4.markdown(
     unsafe_allow_html=True,
 )
 
+st.write("")
+
 col_a, col_b = st.columns(2)
 
 with col_a:
-    st.subheader("Fleet Composition", anchor=False)
     comp = fact[["Year", "traditional_cdi", "non_traditional_cdi"]].dropna().sort_values("Year")
     comp_share = comp["non_traditional_cdi"] / (comp["traditional_cdi"] + comp["non_traditional_cdi"]) * 100
     comp_total = comp["traditional_cdi"] + comp["non_traditional_cdi"]
 
     with st.container(border=True):
+        chart_heading("Fleet Composition")
+        chart_subheading("Fleet split between traditional and non-traditional vehicles, 2018 to 2023.")
+
         fig3 = go.Figure()
         fig3.add_trace(go.Bar(x=comp["Year"], y=comp["traditional_cdi"], name="Traditional (Petrol + Diesel)", marker_color=VERMILLION))
         fig3.add_trace(go.Bar(x=comp["Year"], y=comp["non_traditional_cdi"], name="Non-Traditional (EV + Hybrid + PHEV)", marker_color=BLUISH_GREEN))
@@ -165,20 +188,22 @@ with col_a:
                 font=DATA_LABEL_FONT,
             )
 
-        fig3 = chart_layout(fig3, title="Cars per 1,000 population", height=380)
+        fig3 = chart_layout(fig3, height=380)
         fig3.update_layout(
             xaxis=dict(dtick=1, title="Year"),
             yaxis=dict(title="Cars per 1,000 population", range=[0, comp_total.max() * 1.30]),
-            legend=dict(orientation="h", yanchor="top", y=-0.20, xanchor="center", x=0.5),
-            margin=dict(t=45, l=10, r=10, b=90),
+            legend=dict(orientation="h", yanchor="top", y=1.12, xanchor="center", x=0.5),
+            margin=dict(t=60, l=10, r=10, b=10),
         )
         st.plotly_chart(fig3, use_container_width=True, config=PLOTLY_CONFIG)
 
 with col_b:
-    st.subheader("Estimated CO2 Avoided", anchor=False)
     co2 = fact[["Year", "co2_avoided_tonnes"]].dropna().sort_values("Year")
 
     with st.container(border=True):
+        chart_heading("Estimated CO2 Avoided")
+        chart_subheading("Estimated CO2 avoided by the non-traditional fleet, 2018 to 2023.")
+
         fig5 = go.Figure()
         fig5.add_trace(
             go.Bar(
@@ -187,6 +212,11 @@ with col_b:
                 textposition="outside", textfont=DATA_LABEL_FONT,
             )
         )
-        fig5 = chart_layout(fig5, title="Tonnes CO2 avoided by year", height=380)
-        fig5.update_layout(xaxis=dict(dtick=1, title="Year"), yaxis_title="Tonnes CO2", showlegend=False)
+        fig5 = chart_layout(fig5, height=380)
+        fig5.update_layout(
+            xaxis=dict(dtick=1, title="Year"),
+            yaxis_title="Tonnes CO2",
+            showlegend=False,
+            margin=dict(t=60, l=10, r=10, b=10),
+        )
         st.plotly_chart(fig5, use_container_width=True, config=PLOTLY_CONFIG)

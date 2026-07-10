@@ -9,6 +9,7 @@ from style import apply_page_style
 apply_page_style()
 sticky_header("Home", "Home")
 
+st.divider()
 with st.container(border=True):
     col1, col2, col3, col4 = st.columns(4)
     with col1:

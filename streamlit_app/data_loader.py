@@ -34,6 +34,12 @@ def _find_repo_root() -> Path:
 
 REPO_ROOT = _find_repo_root()
 PROCESSED_DIR = REPO_ROOT / "data" / "processed"
+SUPPLEMENTARY_DIR = REPO_ROOT / "data" / "supplementary"
+
+_SUPPLEMENTARY_TABLES: dict[str, str] = {
+    "income_tier_by_county": "income_tier_by_county.csv",
+    "private_car_stock_by_county": "private_car_stock_by_county.csv",
+}
 
 # name -> filename in data/processed/. Add new pipeline outputs here as they
 # land — this is the single place the rest of the app should ever reference
@@ -60,10 +66,16 @@ _TABLES: dict[str, str] = {
 @st.cache_data(show_spinner=False)
 def load_table(name: str) -> pd.DataFrame:
     """Load one processed table by its logical name, cached across reruns."""
-    if name not in _TABLES:
-        raise KeyError(f"Unknown table '{name}'. Available: {sorted(_TABLES)}")
+    if name in _TABLES:
+        base_dir, filename = PROCESSED_DIR, _TABLES[name]
+    elif name in _SUPPLEMENTARY_TABLES:
+        base_dir, filename = SUPPLEMENTARY_DIR, _SUPPLEMENTARY_TABLES[name]
+    else:
+        raise KeyError(
+            f"Unknown table '{name}'. Available: {sorted(list(_TABLES) + list(_SUPPLEMENTARY_TABLES))}"
+        )
 
-    path = PROCESSED_DIR / _TABLES[name]
+    path = base_dir / filename
     if not path.exists():
         raise FileNotFoundError(
             f"{path} not found. Run notebooks/01_data_preprocessing_and_cleaning.ipynb "
