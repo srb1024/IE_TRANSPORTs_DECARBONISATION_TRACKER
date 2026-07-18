@@ -32,3 +32,24 @@ Audit log
 -> Holt-Winters Transport Intensity**: 2020 and 2021 excluded as COVID structural breaks. MAPE 0.93% on corrected series.
 -> SARIMA PT**: Weekly data aggregated to monthly (S=52 weekly SARIMA unstable with 4 seasonal cycles). COVID years excluded from training. Data scaled to millions for numerical stability.
 -> Logistic S-Curve**: Saturation ceiling L=31.6%. Inflection year t0=2021.09. Projected 2030 EV share 31.6% vs CAP target 50%, gap of 18.4 percentage points.
+
+## Predictive Analytics — Model Decisions
+
+-> Holt-Winters PT Usage**: 2020 and 2021 excluded as COVID structural breaks. Validation MAPE 19.77% is a documented limitation only 3 non-COVID training points available.
+-> Holt-Winters Transport Intensity**: 2020 and 2021 excluded as COVID structural breaks. MAPE 0.93% on corrected series.
+-> SARIMA PT**: Weekly data aggregated to monthly (S=52 weekly SARIMA unstable with 4 seasonal cycles). COVID years excluded from training. Data scaled to millions for numerical stability.
+-> Logistic S-Curve**: Saturation ceiling L=31.6%. Inflection year t0=2021.09. Projected 2030 EV share 31.6% vs CAP target 50%, gap of 18.4 percentage points.
+
+## Predictive Analytics — Model Decisions
+
+- **Holt-Winters PT Usage**: 2020 and 2021 excluded as COVID structural breaks. Validation MAPE 19.77% is a documented limitation — only 3 non-COVID training points available.
+- **Holt-Winters Transport Intensity**: 2020 and 2021 excluded as COVID structural breaks. MAPE 0.93% on corrected series.
+- **SARIMA PT**: Weekly data aggregated to monthly (S=52 weekly SARIMA unstable with 4 seasonal cycles). COVID years excluded from training. Data scaled to millions for numerical stability.
+- **Logistic S-Curve**: Saturation ceiling L=31.6%. Inflection year t0=2021.09. Projected 2030 EV share 31.6% vs CAP target 50% — gap of 18.4 percentage points.
+
+## Predictive Analytics — Model Decisions
+
+- **Holt-Winters PT Usage**: 2020 and 2021 excluded as COVID structural breaks. Validation MAPE 19.77% is a documented limitation — only 3 non-COVID training points available.
+- **Holt-Winters Transport Intensity**: 2020 and 2021 excluded as COVID structural breaks. MAPE 0.93% on corrected series.
+- **SARIMA PT**: Weekly data aggregated to monthly (S=52 weekly SARIMA unstable with 4 seasonal cycles). COVID years excluded from training. Data scaled to millions for numerical stability.
+- **Logistic S-Curve**: Saturation ceiling L=31.6%. Inflection year t0=2021.09. Projected 2030 EV share 31.6% vs CAP target 50% — gap of 18.4 percentage points.
