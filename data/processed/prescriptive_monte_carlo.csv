@@ -1,10 +1,10 @@
 scenario,kpi,kpi_label,gov_target_2030,mean_2030,p5_2030,p25_2030,p75_2030,p95_2030
-Business-As-Usual,car_dependency_index,Car Dependency Index,380,437.69,436.46,437.17,438.19,438.91
-Business-As-Usual,pt_usage_index,PT Usage Index,90,56.71,31.28,46.02,67.15,82.1
-Business-As-Usual,transport_intensity_index,Transport Intensity Index,7000,8944.71,7899.32,8524.63,9364.98,9979.91
-Moderate Intervention,car_dependency_index,Car Dependency Index,380,437.89,436.68,437.39,438.39,439.09
-Moderate Intervention,pt_usage_index,PT Usage Index,90,60.98,35.88,50.58,71.42,86.03
-Moderate Intervention,transport_intensity_index,Transport Intensity Index,7000,8682.49,7668.36,8257.48,9104.62,9704.69
-Accelerated Transition,car_dependency_index,Car Dependency Index,380,438.29,437.04,437.8,438.8,439.53
-Accelerated Transition,pt_usage_index,PT Usage Index,90,69.63,43.54,59.3,80.26,95.22
-Accelerated Transition,transport_intensity_index,Transport Intensity Index,7000,8145.24,7106.95,7712.03,8561.41,9199.34
+Business-As-Usual,car_dependency_index,Car Dependency Index,380,438.17,435.13,436.93,439.42,441.25
+Business-As-Usual,pt_usage_index,PT Usage Index,90,56.2,31.74,46.06,66.09,80.53
+Business-As-Usual,transport_intensity_index,Transport Intensity Index,7000,9149.5,8820.55,9014.21,9284.6,9482.6
+Moderate Intervention,car_dependency_index,Car Dependency Index,380,439.06,436.05,437.81,440.31,442.04
+Moderate Intervention,pt_usage_index,PT Usage Index,90,59.8,35.93,49.88,69.75,83.75
+Moderate Intervention,transport_intensity_index,Transport Intensity Index,7000,9173.02,8850.15,9036.77,9308.93,9499.17
+Accelerated Transition,car_dependency_index,Car Dependency Index,380,440.86,437.75,439.64,442.13,443.92
+Accelerated Transition,pt_usage_index,PT Usage Index,90,66.98,42.22,57.07,77.1,91.55
+Accelerated Transition,transport_intensity_index,Transport Intensity Index,7000,9226.01,8893.44,9093.28,9360.87,9557.19

@@ -1,0 +1,5 @@
+# Streamlit dashboard — install alongside the project's existing requirements.txt
+streamlit>=1.38
+plotly>=5.22
+pandas>=2.0
+requests>=2.31

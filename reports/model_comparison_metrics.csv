@@ -1,7 +1,7 @@
 Model,Series,Algorithm_Type,Train_Period,Test_Period,Train_Points,Test_Points,Actual_Test,Predicted_Test,MAE,MAPE,RMSE,AIC,Alpha,Ljung_Box_p,R_squared,COVID_Excluded,Forecast_Horizon
 Holt-Winters,Car Dependency Index (cars/1000 pop),Exponential Smoothing,2019-2022 (COVID excl.),2023,2,1,437.68,440.328,2.648,0.56,2.648,,0.0,,,Yes,2024-2026
-Holt-Winters,PT Usage Index (journeys/capita),Exponential Smoothing,2019-2022 (COVID excl.),2023,2,1,56.54,45.36,11.18,19.77,11.18,,0.2497,,,Yes,2024-2026
-Holt-Winters,Transport Intensity (vkm/capita),Exponential Smoothing,2019-2022 (COVID excl.),2023,2,1,8952.5,8869.0,83.5,0.93,83.5,,0.7195,,,Yes,2024-2026
+Holt-Winters,PT Usage Index (journeys/capita),Exponential Smoothing,2019-2022 (COVID excl.),2023,2,1,56.54,45.36,11.18,19.77,11.18,,0.6853,,,Yes,2024-2026
+Holt-Winters,Transport Intensity (vkm/capita),Exponential Smoothing,2019-2022 (COVID excl.),2023,2,1,8952.5,8869.0,83.5,0.93,83.5,,0.0005,,,Yes,2024-2026
 SARIMA,EV+PHEV Monthly Share,Seasonal ARIMA,2015-01-01 to 2023-12-01,2024-01-01 to 2025-12-01,108,24,,,0.06239,22.82,0.07246,-374.94,,0.1076,,No,2024-2025
-SARIMAX,Monthly PT Journeys,Seasonal ARIMA,2019-01-01 00:00:00 to 2022-12-01 00:00:00,2023-01-01 to 2025-12-01,24,36,,,3.365,15.33,4.071,8.0,,,,Yes,2023-2025
+SARIMAX,Monthly PT Journeys,Seasonal ARIMA,2019-01-01 00:00:00 to 2022-12-01 00:00:00,2023-01-01 to 2025-12-01,24,36,,,2.744,13.4,3.187,8.0,,,,Yes,2023-2025
 Logistic S-Curve,Annual EV Share,Logistic S-Curve,2015 - 2022,2023 - 2025,8,3,,,3.102,11.56,3.955,,,,0.7412,No,2023-2030
