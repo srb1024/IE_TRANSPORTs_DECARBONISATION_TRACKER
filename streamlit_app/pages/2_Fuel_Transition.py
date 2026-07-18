@@ -1,6 +1,7 @@
 """Fuel Transition page."""
 import plotly.graph_objects as go
 import streamlit as st
+import pandas as pd
 
 from data_loader import load_table
 from nav import sticky_header
@@ -94,21 +95,21 @@ with col2:
 st.write("")
 with st.container(border=True):
     chart_heading("Registrations Needed to Close the Gap")
-    chart_subheading("Annual EV and hybrid registrations needed to close the gap to the CAP 2030 target.")
+    chart_subheading("Monthly EV and hybrid registrations needed to close the gap to the CAP 2030 target, anchored to the latest actual month.")
 
-    reg_gap = load_table("ev_registration_gap").sort_values("Year")
-    gap_2030_row = reg_gap.loc[reg_gap["Year"] == reg_gap["Year"].max()]
-    additional_2030 = int(gap_2030_row["additional_registrations_needed"].iloc[0])
-    total_additional = int(reg_gap["additional_registrations_needed"].sum())
-    assumed_volume = int(reg_gap["assumed_annual_total_registrations"].iloc[0])
+    reg_gap = load_table("ev_registration_gap").copy()
+    reg_gap["Date"] = pd.to_datetime(reg_gap["Date"])
+    reg_gap = reg_gap.sort_values("Date")
+    latest_gap_row = reg_gap.iloc[-1]
 
     card_col, chart_col = st.columns([1, 2])
     with card_col:
         st.markdown(
             stat_card(
-                f"Additional registrations needed ({int(reg_gap['Year'].max())})",
-                f"{additional_2030:,}",
-                f"{total_additional:,} cumulative, {int(reg_gap['Year'].min())} to {int(reg_gap['Year'].max())}",
+                f"Additional registrations needed ({latest_gap_row['Date'].strftime('%b %Y')})",
+                f"{int(latest_gap_row['additional_registrations_needed_monthly']):,}/mo",
+                f"~{latest_gap_row['additional_registrations_needed_daily']:,.1f} more per day, "
+                f"{reg_gap['Date'].min().strftime('%b %Y')} to {reg_gap['Date'].max().strftime('%b %Y')}",
                 accent=ORANGE,
             ),
             unsafe_allow_html=True,
@@ -116,24 +117,87 @@ with st.container(border=True):
 
     with chart_col:
         fig4 = go.Figure()
+        label_mask = reg_gap["Date"].dt.month == 1  # label only January of each year
+
         fig4.add_trace(
-            go.Bar(
-                x=reg_gap["Year"], y=reg_gap["bau_registrations"], name="BAU trajectory", marker_color=ORANGE,
-                text=[f"{v:,.0f}" for v in reg_gap["bau_registrations"]],
-                textposition="outside", textfont=DATA_LABEL_FONT,
+            go.Scatter(
+                x=reg_gap["Date"], y=reg_gap["bau_registrations_monthly"],
+                mode="lines+text", name="BAU trajectory", line=dict(color=ORANGE, width=3),
+                text=[f"{v:,.0f}" if lab else "" for v, lab in zip(reg_gap["bau_registrations_monthly"], label_mask)],
+                textposition="top right", textfont=DATA_LABEL_FONT,
+                yaxis="y2",
             )
         )
         fig4.add_trace(
-            go.Bar(
-                x=reg_gap["Year"], y=reg_gap["required_registrations"], name="Required for CAP target", marker_color=BLUISH_GREEN,
-                text=[f"{v:,.0f}" for v in reg_gap["required_registrations"]],
-                textposition="outside", textfont=DATA_LABEL_FONT,
+            go.Scatter(
+                x=reg_gap["Date"], y=reg_gap["required_registrations_monthly"],
+                mode="lines+text", name="Required for CAP target", line=dict(color=BLUISH_GREEN, width=3),
+                text=[f"{v:,.0f}" if lab else "" for v, lab in zip(reg_gap["required_registrations_monthly"], label_mask)],
+                textposition="top left", textfont=DATA_LABEL_FONT,
             )
         )
-        fig4.update_layout(barmode="group")
         fig4 = chart_layout(fig4, height=340)
+        bau_min, bau_max = reg_gap["bau_registrations_monthly"].min(), reg_gap["bau_registrations_monthly"].max()
+        bau_pad = (bau_max - bau_min) * 0.4 if bau_max > bau_min else 50
         fig4.update_layout(
-            xaxis=dict(dtick=1, title="Year"),
-            yaxis=dict(title="New registrations", range=[0, reg_gap["required_registrations"].max() * 1.2]),
+            xaxis=dict(title="Month", range=[reg_gap["Date"].min(), reg_gap["Date"].max()]),
+            yaxis=dict(title="Required for CAP target", title_font=dict(color=BLUISH_GREEN), tickfont=dict(color=BLUISH_GREEN)),
+            yaxis2=dict(
+                title="BAU trajectory", overlaying="y", side="right",
+                range=[bau_min - bau_pad, bau_max + bau_pad],
+                showgrid=False,
+                title_font=dict(color=ORANGE), tickfont=dict(color=ORANGE),
+            ),
+        )
+        fig4.add_annotation(
+            x=0.02, y=1.14, xref="paper", yref="paper", showarrow=False,
+            xanchor="left", yanchor="top", align="left",
+            text="Note: BAU reflects the fitted long-run S-curve (2015–2025 real data).<br>"
+                 "Recent monthly actuals sit above it, following a 2024 registration dip<br>"
+                 "and 2025 rebound the curve's monotonic shape can't capture.",
+            font=dict(size=11, color="#6E6E6E"),
         )
         st.plotly_chart(fig4, use_container_width=True, config=PLOTLY_CONFIG)
+        
+st.write("")
+with st.container(border=True):
+    chart_heading("CO2 Per Capita - Projected Impact of the EV Transition")
+    chart_subheading("Projected private-car CO2 emissions per person, 2024–2030, versus the latest actual (2023).")
+
+    co2_fc = load_table("co2_per_capita").sort_values("Year")
+    baseline_kg = co2_fc["baseline_2023_co2_per_capita_kg"].iloc[0]
+    latest_row_co2 = co2_fc.iloc[-1]
+
+    card_col, chart_col = st.columns([1, 2])
+    with card_col:
+        st.markdown(
+            stat_card(
+                f"CO2/capita by {int(latest_row_co2['Year'])}",
+                f"{latest_row_co2['co2_per_capita_kg']:,.0f} kg",
+                f"{latest_row_co2['pct_decrease_vs_latest_actual']:.1f}% below the 2023 actual ({baseline_kg:,.0f} kg)",
+                accent=BLUISH_GREEN,
+            ),
+            unsafe_allow_html=True,
+        )
+
+    with chart_col:
+        fig5 = go.Figure()
+        fig5.add_trace(
+            go.Scatter(
+                x=co2_fc["Year"], y=co2_fc["co2_per_capita_kg"],
+                mode="lines+markers+text", name="Projected CO2/capita",
+                line=dict(color=BLUISH_GREEN, width=3),
+                text=[f"{v:,.0f}" for v in co2_fc["co2_per_capita_kg"]],
+                textposition="top center", textfont=DATA_LABEL_FONT,
+            )
+        )
+        fig5.add_trace(
+            go.Scatter(
+                x=[co2_fc["Year"].min(), co2_fc["Year"].max()], y=[baseline_kg, baseline_kg],
+                mode="lines", name="2023 actual (baseline)",
+                line=dict(color=TARGET_LINE["color"], dash=TARGET_LINE["dash"], width=TARGET_LINE["width"]),
+            )
+        )
+        fig5 = chart_layout(fig5, height=340)
+        fig5.update_layout(xaxis=dict(dtick=1, title="Year"), yaxis=dict(title="CO2 per capita (kg)"))
+        st.plotly_chart(fig5, use_container_width=True, config=PLOTLY_CONFIG)

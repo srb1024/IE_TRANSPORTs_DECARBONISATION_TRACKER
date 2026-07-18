@@ -60,6 +60,7 @@ _TABLES: dict[str, str] = {
     "population": "dim_population_annual.csv",
     "naptan_stops": "naptan_stops_clean.csv",
     "ev_registration_gap": "forecast_ev_registration_gap.csv",
+    "co2_per_capita": "forecast_co2_per_capita.csv",
 }
 
 
