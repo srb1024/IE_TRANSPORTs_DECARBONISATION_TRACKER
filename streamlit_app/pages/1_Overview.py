@@ -19,14 +19,17 @@ fuel = load_table("fuel_mix_annual")
 ev_forecast = load_table("ev_forecast")
 county = load_table("county_recommendations")
 
+# 2019 to 2023 is the window where every KPI has complete data
 core = fact[fact["Year"].between(2019, 2023)].sort_values("Year").reset_index(drop=True)
 year_options = core["Year"].tolist()
 
+# Default the year picker to the most recent year available
 if "overview_year" not in st.session_state:
     st.session_state.overview_year = year_options[-1]
 
 st.divider()
 
+# Year pills: the selected one is static markup, the rest are clickable buttons
 pill_cols = st.columns([2, 2] + [1] * len(year_options) + [2, 2])
 for i, yr in enumerate(year_options):
     with pill_cols[i + 2]:
@@ -41,12 +44,14 @@ for i, yr in enumerate(year_options):
             if st.button(str(yr), key=f"yr_pill_{yr}", use_container_width=True):
                 st.session_state.overview_year = yr
                 st.rerun()
+# Selected year plus the 2019 baseline every comparison is measured against
 year = st.session_state.overview_year
 row = core.loc[core["Year"] == year].iloc[0]
 baseline_row = core.loc[core["Year"] == 2019].iloc[0]
 
 
 def pct_since_2019(kpi_key):
+    """Percent change vs 2019. Returns None when either value is missing."""
     base_val = baseline_row[kpi_key]
     cur_val = row[kpi_key]
     if pd.isna(cur_val) or pd.isna(base_val) or base_val == 0:
@@ -54,6 +59,7 @@ def pct_since_2019(kpi_key):
     return (cur_val / base_val - 1) * 100
 
 
+# Headline KPI cards for the selected year
 with st.container(border=True, key="kpi_cards_box"):
     c1, c2, c3 = st.columns(3)
     c1.markdown(
@@ -76,6 +82,7 @@ with st.container(border=True, key="kpi_cards_box"):
         ),
         unsafe_allow_html=True,
     )
+    # Vehicle km data runs short in some years so this KPI can be blank
     tii_val = f"{row['transport_intensity_index']:.2f}" if pd.notna(row["transport_intensity_index"]) else "n/a"
     c3.markdown(
         kpi_circle_card(
@@ -88,11 +95,13 @@ with st.container(border=True, key="kpi_cards_box"):
         unsafe_allow_html=True,
     )
 
+# Rebase every KPI to 2019 = 100 so three different units share one axis
 indexed = core.copy()
 for kpi in KPI_LABELS:
     base_val = indexed.loc[indexed["Year"] == 2019, kpi].iloc[0]
     indexed[f"{kpi}_idx"] = indexed[kpi] / base_val * 100
 
+# Wide trend chart on the left, single-year bar chart on the right
 chart_col, side_col = st.columns([2, 1])
 with chart_col:
     with st.container(border=True):
@@ -133,6 +142,9 @@ with side_col:
         st.plotly_chart(fig2, use_container_width=True, config=PLOTLY_CONFIG)
 
 st.subheader("At a glance", anchor=False)
+
+# Pull the handful of standout numbers for the summary cards below
+# Only full years count, otherwise a part-year would look like a real drop
 fuel_complete = fuel[fuel["year_complete"]].sort_values("Year")
 latest_fuel_year = int(fuel_complete["Year"].max())
 ev_share_latest = fuel_complete.loc[fuel_complete["Year"] == latest_fuel_year, "ev_phev_share"].iloc[0] * 100
@@ -168,6 +180,7 @@ st.write("")
 col_a, col_b = st.columns(2)
 
 with col_a:
+    # Stacked fleet split, with the non-traditional percentage labelled on top
     comp = fact[["Year", "traditional_cdi", "non_traditional_cdi"]].dropna().sort_values("Year")
     comp_share = comp["non_traditional_cdi"] / (comp["traditional_cdi"] + comp["non_traditional_cdi"]) * 100
     comp_total = comp["traditional_cdi"] + comp["non_traditional_cdi"]
@@ -181,6 +194,7 @@ with col_a:
         fig3.add_trace(go.Bar(x=comp["Year"], y=comp["non_traditional_cdi"], name="Non-Traditional (EV + Hybrid + PHEV)", marker_color=BLUISH_GREEN))
         fig3.update_layout(barmode="stack")
 
+        # Float each share label above its bar, clear of the stack
         for yr, share, total in zip(comp["Year"], comp_share, comp_total):
             fig3.add_annotation(
                 x=yr, y=total + comp_total.max() * 0.12,
@@ -198,6 +212,7 @@ with col_a:
         st.plotly_chart(fig3, use_container_width=True, config=PLOTLY_CONFIG)
 
 with col_b:
+    # CO2 avoided by the non-traditional fleet, one bar per year
     co2 = fact[["Year", "co2_avoided_tonnes"]].dropna().sort_values("Year")
 
     with st.container(border=True):

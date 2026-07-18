@@ -17,10 +17,10 @@ import streamlit as st
 def _find_repo_root() -> Path:
     """Walk up from this file until we find the real repo root.
 
-    Mirrors the walk-up-to-root pattern already used in src/config.py. Uses a
-    directory-shape marker (data/processed/ + notebooks/ both present) rather
-    than a single filename, since streamlit_app/ has its own requirements.txt
-    now too and a filename marker would stop one level too early.
+    Uses a directory-shape marker (data/processed/ + notebooks/ both present)
+    rather than a single filename, since streamlit_app/ has its own
+    requirements.txt now too and a filename marker would stop one level too
+    early.
     """
     here = Path(__file__).resolve()
     for parent in [here] + list(here.parents):
@@ -92,4 +92,4 @@ def load_table(name: str) -> pd.DataFrame:
 
 def load_all() -> dict[str, pd.DataFrame]:
     """Eagerly load every registered table — used by the Home page health check."""
-    return {name: load_table(name) for name in _TABLES}
+    return {name: load_table(name) for name in list(_TABLES) + list(_SUPPLEMENTARY_TABLES)}

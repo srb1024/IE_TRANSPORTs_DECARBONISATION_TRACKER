@@ -19,10 +19,13 @@ sarima = load_table("pt_forecast_sarima")
 
 
 def _fmt(v, kpi_key):
+    """Vehicle km run into the thousands so they get no decimals."""
     return f"{v:,.0f}" if kpi_key == "transport_intensity_index" else f"{v:.1f}"
 
 
 def hw_chart(kpi_key, kpi_label, height=340):
+    """Build one actual vs Holt-Winters forecast chart. Shared by three KPIs."""
+    # Split the series at the last real observation
     actual = fact[["Year", kpi_key]].dropna().sort_values("Year")
     last_year = actual["Year"].max()
     last_val = actual.loc[actual["Year"] == last_year, kpi_key].iloc[0]
@@ -43,6 +46,8 @@ def hw_chart(kpi_key, kpi_label, height=340):
             textfont=DATA_LABEL_FONT,
         )
     )
+    # Start the forecast at the last actual point so the two lines join up
+    # The leading label is blank because that point already carries one
     fx = [last_year] + fc_after["Year"].tolist()
     fy = [last_val] + fc_after["forecast_value"].tolist()
     if len(fx) > 1:
@@ -61,6 +66,7 @@ def hw_chart(kpi_key, kpi_label, height=340):
     fig = add_covid_highlight(fig)
     fig = chart_layout(fig, height=height)
 
+    # Pad the y-range across both series, more at the top to clear the labels
     all_vals = pd.concat([actual[kpi_key], pd.Series(fy)])
     span = all_vals.max() - all_vals.min()
     y_range = [all_vals.min() - span * 0.08, all_vals.max() + span * 0.20]
@@ -70,6 +76,7 @@ def hw_chart(kpi_key, kpi_label, height=340):
     return fig, mape, subheading
 st.divider()
 
+# Three Holt-Winters KPIs in a 2x2 grid, with the SARIMA chart filling the last slot
 row1 = st.columns(2)
 with row1[0]:
     with st.container(border=True):
@@ -101,6 +108,7 @@ with row2[1]:
         sarima_sorted = sarima.sort_values("Date").reset_index(drop=True)
         mape_sarima = sarima_sorted["MAPE_pct"].iloc[0]
 
+        # Monthly points would collide if all were labelled, so label one per quarter
         label_months = {(2023, 1), (2023, 4), (2023, 7), (2023, 10)}
         month_year = list(zip(sarima_sorted["Date"].dt.year, sarima_sorted["Date"].dt.month))
         sarima_labels = [
@@ -108,6 +116,8 @@ with row2[1]:
             for v, my in zip(sarima_sorted["pt_journeys_forecast"], month_year)
         ]
 
+        # Confidence band first, drawn as one closed shape running out along the upper
+        # bound then back along the reversed lower bound. It must sit under the line
         fig2 = go.Figure()
         fig2.add_trace(
             go.Scatter(
