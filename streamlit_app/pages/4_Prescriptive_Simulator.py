@@ -501,27 +501,30 @@ with st.container(border=True):
     }
 
     def _add_map_legend(fig, color_map, risk_order, income_order, empty_combos=frozenset()):
-        pad = 0.016
-        risk_title_w, row_label_w = 0.065, 0.085
+        pad = 0.014
+        pad_left = 0.000
+        pad_right = 0.012
+        pad_bottom = 0.012
+        risk_title_w, row_label_w = 0.062, 0.072
         grid_w = 0.26
         box_x0 = 0.005
-        content_x0 = box_x0 + pad
+        content_x0 = box_x0 + pad_left
         grid_x0 = content_x0 + risk_title_w + row_label_w
         grid_x1 = grid_x0 + grid_w
-        box_x1 = grid_x1 + pad
+        box_x1 = grid_x1 + pad_right
         col_w = grid_w / len(income_order)
 
         box_y1 = 0.975
         content_y1 = box_y1 - pad
-        income_title_h, title_gap = 0.055, 0.014
-        col_header_h, header_gap = 0.045, 0.016
-        row_h = 0.062
+        income_title_h, title_gap = 0.060, 0.020
+        col_header_h, header_gap = 0.040, 0.018
+        row_h = 0.055
 
         grid_y1 = content_y1 - income_title_h - title_gap - col_header_h - header_gap
         grid_y0 = grid_y1 - row_h * len(risk_order)
-        box_y0 = grid_y0 - pad
+        box_y0 = grid_y0 - pad_bottom
 
-        rx, ry = 0.012, 0.016
+        rx, ry = 0.010, 0.012
         legend_path = (
             f"M{box_x0 + rx},{box_y1} "
             f"L{box_x1 - rx},{box_y1} "
@@ -551,10 +554,17 @@ with st.container(border=True):
                 xref="paper", yref="paper", showarrow=False,
                 text=f"<b>{income_lvl}</b>", font=dict(size=14, color="#000000"),
             )
+        risk_cx = content_x0 + risk_title_w / 2
+        risk_cy = (grid_y0 + grid_y1) / 2
         fig.add_annotation(
-            x=content_x0 + risk_title_w / 2, y=(grid_y0 + grid_y1) / 2,
-            xref="paper", yref="paper", showarrow=False, textangle=-90,
-            text="<b>Risk Tier</b>", font=dict(size=22, color="#000000"),
+            x=risk_cx, y=risk_cy + 0.018,
+            xref="paper", yref="paper", showarrow=False,
+            text="<b>Risk</b>", font=dict(size=22, color="#000000"),
+        )
+        fig.add_annotation(
+            x=risk_cx, y=risk_cy - 0.018,
+            xref="paper", yref="paper", showarrow=False,
+            text="<b>Tier</b>", font=dict(size=22, color="#000000"),
         )
         for i, risk_lvl in enumerate(risk_order):
             fig.add_annotation(
@@ -582,7 +592,7 @@ with st.container(border=True):
                     )
         return fig
     
-    card_col, chart_col = st.columns([1, 2])
+    card_col, chart_col = st.columns([1, 2], gap="small")
 
     with card_col:
         n_critical = int((county["risk_tier"] == "Critical").sum())
@@ -648,7 +658,7 @@ with st.container(border=True):
                     matched, geojson=geojson_data, locations="geo_name",
                     featureidkey=f"properties.{name_key}", color="combo",
                     color_discrete_map=BIVAR_COLOR_MAP, mapbox_style="carto-positron",
-                    zoom=5.6, center={"lat": 53.4, "lon": -8.0}, opacity=0.9,
+                    zoom=5.6, center={"lat": 53.4, "lon": -8.7}, opacity=0.9,
                     hover_name="county", hover_data={"risk_tier": True, "income_tier": True, "combo": False},
                     height=560,
                 )
@@ -699,7 +709,7 @@ with st.container(border=True):
                 point_data, lat="lat", lon="lon", color="combo", color_discrete_map=BIVAR_COLOR_MAP,
                 size="cars_per_1000", size_max=32, hover_name="county",
                 hover_data={"risk_tier": True, "income_tier": True, "combo": False},
-                zoom=5.7, height=560, mapbox_style="carto-positron", center={"lat": 53.4, "lon": -8.0},
+                zoom=5.7, height=560, mapbox_style="carto-positron", center={"lat": 53.4, "lon": -8.7},
             )
             fig_map.update_traces(marker=dict(sizemin=10))
             fig_map.update_layout(margin=dict(l=0, r=0, t=10, b=10), showlegend=False)
