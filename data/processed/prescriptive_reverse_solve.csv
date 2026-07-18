@@ -1,4 +1,4 @@
 kpi,kpi_label,gov_target_2030,bau_pt_growth_rate,bau_ev_adoption_rate,required_pt_growth_rate_if_ev_fixed,pt_multiplier_vs_bau,required_ev_adoption_rate_if_pt_fixed,ev_multiplier_vs_bau
-car_dependency_index,Car Dependency Index,380,0.237,0.0504,42.5213,179.41,-3.914,-77.66
-pt_usage_index,PT Usage Index,90,0.237,0.0504,-0.9555,-4.03,0.1598,3.17
-transport_intensity_index,Transport Intensity Index,7000,0.237,0.0504,-1.9642,-8.29,0.1817,3.61
+car_dependency_index,Car Dependency Index,380,0.237,0.0504,24.4236,103.05,-1.1824,-23.46
+pt_usage_index,PT Usage Index,90,0.237,0.0504,-1.0206,-4.31,0.1751,3.47
+transport_intensity_index,Transport Intensity Index,7000,0.237,0.0504,-4.5535,-19.21,1.9584,38.86

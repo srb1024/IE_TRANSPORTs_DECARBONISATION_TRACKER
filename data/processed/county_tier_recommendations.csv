@@ -1,27 +1,27 @@
 county,risk_tier,priority,cars_per_1000,vkm_per_capita,stops_per_100k,action,recommended_policies,rationale
-Carlow,Critical,1,545.22,12415.0,0.0,Immediate intervention required,"EV incentive schemes, PT expansion, car-sharing infrastructure",Highest car dependency and vehicle-km — furthest from 2030 targets
-Roscommon,Critical,1,518.77,12640.8,0.0,Immediate intervention required,"EV incentive schemes, PT expansion, car-sharing infrastructure",Highest car dependency and vehicle-km — furthest from 2030 targets
-Tipperary,Critical,1,510.56,11546.6,0.0,Immediate intervention required,"EV incentive schemes, PT expansion, car-sharing infrastructure",Highest car dependency and vehicle-km — furthest from 2030 targets
-Wexford,Critical,1,505.71,11353.6,0.0,Immediate intervention required,"EV incentive schemes, PT expansion, car-sharing infrastructure",Highest car dependency and vehicle-km — furthest from 2030 targets
-Kerry,Critical,1,502.43,10629.1,0.0,Immediate intervention required,"EV incentive schemes, PT expansion, car-sharing infrastructure",Highest car dependency and vehicle-km — furthest from 2030 targets
-Mayo,Critical,1,483.4,11110.4,0.0,Immediate intervention required,"EV incentive schemes, PT expansion, car-sharing infrastructure",Highest car dependency and vehicle-km — furthest from 2030 targets
-Waterford,High,2,480.56,9183.4,428.56,Targeted PT investment,"Bus connects expansion, park-and-ride facilities, cycling infrastructure",High car use but some PT infrastructure present — invest in alternatives
-Cork,Medium,3,491.79,9577.6,35.03,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency — incremental improvements sufficient
-Clare,Medium,3,488.86,10462.0,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency — incremental improvements sufficient
-Kildare,Medium,3,478.97,9681.1,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency — incremental improvements sufficient
-Kilkenny,Medium,3,478.28,10924.8,150.48,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency — incremental improvements sufficient
-Wicklow,Medium,3,475.15,8888.5,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency — incremental improvements sufficient
-Westmeath,Medium,3,470.27,10620.3,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency — incremental improvements sufficient
-Galway,Medium,3,469.93,10238.7,102.57,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency — incremental improvements sufficient
-Leitrim,Medium,3,463.21,11199.8,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency — incremental improvements sufficient
-Meath,Medium,3,462.17,9850.6,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency — incremental improvements sufficient
-Offaly,Medium,3,460.0,10641.1,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency — incremental improvements sufficient
-Limerick,Medium,3,457.38,9425.5,163.4,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency — incremental improvements sufficient
-Sligo,Medium,3,450.11,9872.1,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency — incremental improvements sufficient
-Monaghan,Medium,3,444.85,11794.7,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency — incremental improvements sufficient
-Cavan,Medium,3,432.28,10692.4,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency — incremental improvements sufficient
-Laois,Medium,3,430.32,9853.0,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency — incremental improvements sufficient
-Donegal,Medium,3,418.95,9572.4,9.39,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency — incremental improvements sufficient
-Longford,Medium,3,410.29,10070.9,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency — incremental improvements sufficient
-Louth,Low,4,401.07,7920.5,0.0,Maintain and monitor,"Protect existing PT infrastructure, monitor CDI trajectory",Lowest car dependency relative to population — closest to targets
-Dublin,Low,4,396.89,6976.8,31.86,Maintain and monitor,"Protect existing PT infrastructure, monitor CDI trajectory",Lowest car dependency relative to population — closest to targets
+Carlow,Critical,1,545.22,12415.0,0.0,Immediate intervention required,"EV incentive schemes, PT expansion, car-sharing infrastructure",Highest car dependency and vehicle-km furthest from 2030 targets
+Roscommon,Critical,1,518.77,12640.8,0.0,Immediate intervention required,"EV incentive schemes, PT expansion, car-sharing infrastructure",Highest car dependency and vehicle-km furthest from 2030 targets
+Tipperary,Critical,1,510.56,11546.6,0.0,Immediate intervention required,"EV incentive schemes, PT expansion, car-sharing infrastructure",Highest car dependency and vehicle-km furthest from 2030 targets
+Wexford,Critical,1,505.71,11353.6,0.0,Immediate intervention required,"EV incentive schemes, PT expansion, car-sharing infrastructure",Highest car dependency and vehicle-km furthest from 2030 targets
+Kerry,Critical,1,502.43,10629.1,0.0,Immediate intervention required,"EV incentive schemes, PT expansion, car-sharing infrastructure",Highest car dependency and vehicle-km furthest from 2030 targets
+Mayo,Critical,1,483.4,11110.4,0.0,Immediate intervention required,"EV incentive schemes, PT expansion, car-sharing infrastructure",Highest car dependency and vehicle-km furthest from 2030 targets
+Waterford,High,2,480.56,9183.4,428.56,Targeted PT investment,"Bus connects expansion, park-and-ride facilities, cycling infrastructure",High car use but some PT infrastructure present invest in alternatives
+Cork,Medium,3,491.79,9577.6,35.03,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency incremental improvements sufficient
+Clare,Medium,3,488.86,10462.0,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency incremental improvements sufficient
+Kildare,Medium,3,478.97,9681.1,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency incremental improvements sufficient
+Kilkenny,Medium,3,478.28,10924.8,150.48,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency incremental improvements sufficient
+Wicklow,Medium,3,475.15,8888.5,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency incremental improvements sufficient
+Westmeath,Medium,3,470.27,10620.3,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency incremental improvements sufficient
+Galway,Medium,3,469.93,10238.7,102.57,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency incremental improvements sufficient
+Leitrim,Medium,3,463.21,11199.8,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency incremental improvements sufficient
+Meath,Medium,3,462.17,9850.6,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency incremental improvements sufficient
+Offaly,Medium,3,460.0,10641.1,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency incremental improvements sufficient
+Limerick,Medium,3,457.38,9425.5,163.4,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency incremental improvements sufficient
+Sligo,Medium,3,450.11,9872.1,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency incremental improvements sufficient
+Monaghan,Medium,3,444.85,11794.7,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency incremental improvements sufficient
+Cavan,Medium,3,432.28,10692.4,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency incremental improvements sufficient
+Laois,Medium,3,430.32,9853.0,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency incremental improvements sufficient
+Donegal,Medium,3,418.95,9572.4,9.39,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency incremental improvements sufficient
+Longford,Medium,3,410.29,10070.9,0.0,Sustain and optimise,"EV charging network expansion, PT frequency improvements",Moderate car dependency incremental improvements sufficient
+Louth,Low,4,401.07,7920.5,0.0,Maintain and monitor,"Protect existing PT infrastructure, monitor CDI trajectory",Lowest car dependency relative to population closest to targets
+Dublin,Low,4,396.89,6976.8,31.86,Maintain and monitor,"Protect existing PT infrastructure, monitor CDI trajectory",Lowest car dependency relative to population closest to targets
