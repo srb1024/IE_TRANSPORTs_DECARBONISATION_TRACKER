@@ -15,8 +15,11 @@ sticky_header("Fuel Transition", "Fuel Transition")
 
 fuel_annual = load_table("fuel_mix_annual")
 ev_forecast = load_table("ev_forecast")
+
+# Drop part years so a half-finished year cannot read as a collapse in registrations
 fuel_complete = fuel_annual[fuel_annual["year_complete"]].sort_values("Year")
 
+# Headline numbers: latest actuals alongside the 2030 forecast and target
 latest_year = int(fuel_complete["Year"].max())
 latest_ev_share = fuel_complete.loc[fuel_complete["Year"] == latest_year, "ev_phev_share"].iloc[0] * 100
 forecast_2030 = ev_forecast.loc[ev_forecast["Year"] == 2030, "ev_phev_pct_forecast"].iloc[0]
@@ -26,6 +29,7 @@ total_latest = int(fuel_complete.loc[fuel_complete["Year"] == latest_year, "tota
 
 st.divider()
 
+# Top metric strip
 with st.container(border=True):
     c1, c2, c3 = st.columns(3)
     c1.metric(f"New registrations ({latest_year})", f"{total_latest:,}")
@@ -39,6 +43,7 @@ with col1:
         chart_heading("Registrations by Fuel Type")
         chart_subheading(f"Fuel mix of new registrations, 2015 to {latest_year}.")
 
+        # Fixed order keeps the stack reading dirtiest at the bottom to cleanest on top
         fuel_order = ["Petrol", "Diesel", "Hybrid (HEV)", "Plug-in Hybrid (PHEV)", "Battery Electric (BEV)", "Other"]
         fig1 = go.Figure()
         for fuel in fuel_order:
@@ -60,6 +65,7 @@ with col2:
         chart_heading("EV and PHEV Adoption")
         chart_subheading("EV and PHEV share of new registrations, actual vs forecast vs target.")
 
+        # Three lines: what happened, where BAU lands, where policy says we should be
         fig2 = go.Figure()
         fig2.add_trace(
             go.Scatter(
@@ -97,11 +103,13 @@ with st.container(border=True):
     chart_heading("Registrations Needed to Close the Gap")
     chart_subheading("Monthly EV and hybrid registrations needed to close the gap to the CAP 2030 target, anchored to the latest actual month.")
 
+    # Monthly series, so parse dates before sorting or the axis comes out scrambled
     reg_gap = load_table("ev_registration_gap").copy()
     reg_gap["Date"] = pd.to_datetime(reg_gap["Date"])
     reg_gap = reg_gap.sort_values("Date")
     latest_gap_row = reg_gap.iloc[-1]
 
+    # Summary card beside the chart
     card_col, chart_col = st.columns([1, 2])
     with card_col:
         st.markdown(
@@ -136,6 +144,7 @@ with st.container(border=True):
                 textposition="top left", textfont=DATA_LABEL_FONT,
             )
         )
+        # BAU sits on its own right-hand axis, otherwise the required curve dwarfs it
         fig4 = chart_layout(fig4, height=340)
         bau_min, bau_max = reg_gap["bau_registrations_monthly"].min(), reg_gap["bau_registrations_monthly"].max()
         bau_pad = (bau_max - bau_min) * 0.4 if bau_max > bau_min else 50
@@ -149,6 +158,7 @@ with st.container(border=True):
                 title_font=dict(color=ORANGE), tickfont=dict(color=ORANGE),
             ),
         )
+        # Caveat for readers who spot actuals sitting above the fitted curve
         fig4.add_annotation(
             x=0.02, y=1.14, xref="paper", yref="paper", showarrow=False,
             xanchor="left", yanchor="top", align="left",
@@ -164,6 +174,7 @@ with st.container(border=True):
     chart_heading("CO2 Per Capita - Projected Impact of the EV Transition")
     chart_subheading("Projected private-car CO2 emissions per person, 2024–2030, versus the latest actual (2023).")
 
+    # Everything here is measured against the 2023 actual, held flat as a reference line
     co2_fc = load_table("co2_per_capita").sort_values("Year")
     baseline_kg = co2_fc["baseline_2023_co2_per_capita_kg"].iloc[0]
     latest_row_co2 = co2_fc.iloc[-1]

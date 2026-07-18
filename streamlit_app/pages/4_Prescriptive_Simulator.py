@@ -22,6 +22,8 @@ monte_carlo = load_table("prescriptive_monte_carlo")
 reverse_solve = load_table("prescriptive_reverse_solve")
 county = load_table("county_recommendations")
 
+# Two KPIs improve by falling while PT usage improves by rising, so direction
+# has to be tracked explicitly before any gap can be read as good or bad
 KPI_DIRECTION = {"car_dependency_index": "down", "pt_usage_index": "up", "transport_intensity_index": "down"}
 SCENARIO_ORDER = ["Business-As-Usual", "Moderate Intervention", "Accelerated Transition"]
 RISK_COLORS = {"Critical": "#D55E00", "High": "#E69F00", "Medium": "#F0E442", "Low": "#009E73"}
@@ -29,6 +31,7 @@ GEOJSON_URL = "https://raw.githubusercontent.com/codeforgermany/click_that_hood/
 
 
 def status(gap, target, direction):
+    """Grade a KPI against its target. Within 20% of the target counts as At Risk."""
     on_track = gap >= 0 if direction == "down" else gap <= 0
     if on_track:
         return "On Track"
@@ -69,15 +72,19 @@ with st.container(border=True):
         gap = scen.loc["Accelerated Transition", "gap_to_target"]
         kpi_status_map[kpi_key] = status(gap, target, direction)
 
+    # Each chart can be zoomed to its uncertainty band instead of starting at zero
     if "kpi_zoom" not in st.session_state:
         st.session_state.kpi_zoom = {kpi_key: False for kpi_key, _ in kpi_items}
 
+    # Zoom toggles are plain links, so read the click from the URL then clear it
+    # A real button would sit below the chart and push the layout around
     for kpi_key, _ in kpi_items:
         param_name = f"zoom_{kpi_key}"
         if param_name in st.query_params:
             st.session_state.kpi_zoom[kpi_key] = st.query_params[param_name] == "1"
             del st.query_params[param_name]
 
+    # Heading row: zoom link, KPI name plus its status badge
     header_cols = st.columns(3)
     for col, (kpi_key, kpi_label) in zip(header_cols, kpi_items):
         with col:
@@ -103,6 +110,7 @@ with st.container(border=True):
                 unsafe_allow_html=True,
             )
 
+    # One subplot per KPI. Separate axes because the three use different units
     fig_combined = make_subplots(
         rows=1, cols=3,
         horizontal_spacing=0.08,
@@ -114,6 +122,7 @@ with st.container(border=True):
         mc = monte_carlo[monte_carlo["kpi"] == kpi_key].set_index("scenario").loc[SCENARIO_ORDER]
         target = scen["gov_target_2030"].iloc[0]
 
+        # Only the first subplot contributes to the legend, otherwise it repeats 3x
         show_legend_here = (col_idx == 1)
 
         for scenario in SCENARIO_ORDER:
@@ -121,6 +130,7 @@ with st.container(border=True):
             p5 = mc.loc[scenario, "p5_2030"]
             p95 = mc.loc[scenario, "p95_2030"]
 
+            # Faint p5 to p95 bar sits behind, floated up on a base to show the band
             fig_combined.add_trace(
                 go.Bar(
                     x=[scenario],
@@ -134,6 +144,7 @@ with st.container(border=True):
                 row=1, col=col_idx,
             )
 
+            # Solid mean bar drawn over the band
             fig_combined.add_trace(
                 go.Bar(
                     x=[scenario],
@@ -151,6 +162,7 @@ with st.container(border=True):
                 row=1, col=col_idx,
             )
 
+        # Government 2030 target
         fig_combined.add_hline(
             y=target,
             line_dash=TARGET_LINE["dash"],
@@ -159,6 +171,8 @@ with st.container(border=True):
             row=1, col=col_idx,
         )
 
+        # Zoomed crops to the band so scenarios separate. Default keeps zero in view
+        # so bar lengths stay honest
         if st.session_state.kpi_zoom[kpi_key]:
             band_min = min(mc["p5_2030"].min(), target)
             band_max = max(mc["p95_2030"].max(), target)
@@ -188,12 +202,14 @@ with st.container(border=True):
     chart_heading("Which lever moves each KPI?")
     chart_subheading("Required change vs BAU pace, as a multiplier. Teal = same direction as BAU, just faster or slower. Vermillion = the lever would need to reverse direction entirely.")
 
+    # Current pace of each lever, the baseline the multipliers below are measured against
     bau_pt = reverse_solve["bau_pt_growth_rate"].iloc[0]
     bau_ev = reverse_solve["bau_ev_adoption_rate"].iloc[0]
     c1, c2 = st.columns(2)
     c1.metric("BAU PT growth rate", f"{bau_pt*100:.1f}%/yr")
     c2.metric("BAU EV adoption rate", f"{bau_ev*100:.1f}%/yr")
 
+    # One tornado chart per KPI comparing the two levers side by side
     tornado_cols = st.columns(3)
     for col, (kpi_key, kpi_label) in zip(tornado_cols, kpi_items):
         with col:
@@ -203,6 +219,8 @@ with st.container(border=True):
                 rs_row = reverse_solve[reverse_solve["kpi"] == kpi_key].iloc[0]
                 levers = ["EV adoption lever", "PT growth lever"]
                 multipliers = [rs_row["ev_multiplier_vs_bau"], rs_row["pt_multiplier_vs_bau"]]
+
+                # Negative means the lever would have to reverse direction, not just speed up
                 colors = ["#009E73" if m >= 0 else "#D55E00" for m in multipliers]
 
                 fig_t = go.Figure(
@@ -213,6 +231,7 @@ with st.container(border=True):
                         textposition="outside", textfont=DATA_LABEL_FONT,
                     )
                 )
+                # 1x marker: anything right of this needs more than the current pace
                 fig_t.add_vline(x=1, line_dash="dot", line_color="black", line_width=1.5)
 
                 span = max(multipliers) - min(multipliers)
@@ -244,6 +263,7 @@ with st.container(border=True):
     card_col, chart_col = st.columns([1, 2])
 
     with card_col:
+        # 2030 share per tier, then the gap between the top tier and the bottom
         for tier in TIER_ORDER:
             val_2030 = tier_forecast.loc[
                 (tier_forecast["income_tier"] == tier) & (tier_forecast["Year"] == 2030),
@@ -259,6 +279,8 @@ with st.container(border=True):
         fig6 = go.Figure()
         for tier in TIER_ORDER:
             tier_symbol = {"High": "circle", "Medium": "square", "Low": "diamond"}[tier]
+            # Solid up to 2023 then dotted, split as two traces so the style can change
+            # Both include 2023 so there is no visible break at the join
             tier_data = tier_forecast[tier_forecast["income_tier"] == tier].sort_values("Year")
             solid = tier_data[tier_data["Year"] <= 2023]
             dashed = tier_data[tier_data["Year"] >= 2023]
@@ -290,6 +312,7 @@ st.subheader("Equity priority matrix", anchor=False)
 income_tier = load_table("income_tier_by_county")
 stock = load_table("private_car_stock_by_county")
 
+# Pivot the latest year to a county per row, then read non-traditional share off it
 latest_stock_year = int(stock["Year"].max())
 stock_latest = stock[stock["Year"] == latest_stock_year]
 fuel_pivot = stock_latest.pivot_table(index="county", columns="fuel_type", values="car_stock", aggfunc="sum")
@@ -297,6 +320,7 @@ fuel_pivot["total"] = fuel_pivot.sum(axis=1)
 fuel_pivot["ev_share_pct"] = fuel_pivot["Other fuel types"] / fuel_pivot["total"] * 100
 ev_share = fuel_pivot[["ev_share_pct"]].reset_index()
 
+# Join risk tier, income tier plus EV share into the one table the matrix needs
 equity = (
     county[["county", "risk_tier", "cars_per_1000"]]
     .merge(income_tier[["county", "income_tier", "median_income"]], on="county")
@@ -305,12 +329,16 @@ equity = (
 
 RISK_ORDER = ["Critical", "High", "Medium", "Low"]
 INCOME_ORDER = ["Low", "Medium", "High"]
+
+# Priority = high car dependency combined with lower income. These counties are least
+# able to self-fund an EV switch so they are the natural targets for grants
 PRIORITY_RISK = {"Critical", "High"}
 PRIORITY_INCOME = {"Low", "Medium"}
 
 AMBER_STOPS = ["#FAEEDA", "#FAC775", "#EF9F27", "#BA7517", "#854F0B"]
 AMBER_TEXT = ["#633806", "#633806", "#633806", "#FAEEDA", "#FAEEDA"]
 
+# Build every risk x income cell, including empty ones so the grid stays rectangular
 cell_rows = []
 for risk in RISK_ORDER:
     for income in INCOME_ORDER:
@@ -324,10 +352,12 @@ for risk in RISK_ORDER:
         })
 cell_df = pd.DataFrame(cell_rows)
 
+# Scale the colour ramp across populated cells only, so empties do not skew the range
 non_empty_ev = cell_df.loc[cell_df["count"] > 0, "avg_ev"]
 ev_min, ev_max = (non_empty_ev.min(), non_empty_ev.max()) if len(non_empty_ev) else (0, 1)
 
 def swatch_for(avg_ev):
+    """Pick a background plus a readable text colour for one cell."""
     if avg_ev is None or ev_max == ev_min:
         idx = 0
     else:
@@ -339,6 +369,7 @@ n_bins = len(AMBER_STOPS)
 bin_edges = [ev_min + (ev_max - ev_min) * i / n_bins for i in range(n_bins + 1)]
 bin_labels = [f"{bin_edges[i]:.1f}\u2013{bin_edges[i + 1]:.1f}%" for i in range(n_bins)]
 
+# The two extremes: same car dependency, opposite ends of the income scale
 double_disadv = equity[(equity["risk_tier"].isin(["Critical", "High"])) & (equity["income_tier"] == "Low")]
 double_advantaged = equity[(equity["risk_tier"].isin(["Critical", "High"])) & (equity["income_tier"] == "High")]
 
@@ -370,6 +401,7 @@ with st.container(border=True):
 
         st.write("")
 
+        # Compare priority counties against everywhere else on EV uptake then income
         priority_mask = equity["risk_tier"].isin(PRIORITY_RISK) & equity["income_tier"].isin(PRIORITY_INCOME)
         priority_ev = equity.loc[priority_mask, "ev_share_pct"].mean()
         rest_ev = equity.loc[~priority_mask, "ev_share_pct"].mean()
@@ -400,6 +432,7 @@ with st.container(border=True):
 
 
     with chart_col:
+        # The matrix is hand-built HTML rather than a plot, so it needs its own legend
         n_bins = len(AMBER_STOPS)
         bin_edges = [ev_min + (ev_max - ev_min) * i / n_bins for i in range(n_bins + 1)]
         bin_labels = [f"{bin_edges[i]:.1f}\u2013{bin_edges[i + 1]:.1f}%" for i in range(n_bins)]
@@ -421,6 +454,7 @@ with st.container(border=True):
         )
         st.markdown(legend_html, unsafe_allow_html=True)
 
+        # CSS grid: a corner spacer, three income headers, then one row per risk tier
         header_cells = "".join(
             f'<div style="text-align:center;font-size:13px;font-weight:700;color:#000000;">{inc} income</div>'
             for inc in INCOME_ORDER
@@ -435,6 +469,8 @@ with st.container(border=True):
             for income in INCOME_ORDER:
                 row = cell_df[(cell_df["risk_tier"] == risk) & (cell_df["income_tier"] == income)].iloc[0]
                 is_priority = risk in PRIORITY_RISK and income in PRIORITY_INCOME
+
+                # Empty cells render as a flat grey placeholder
                 if row["count"] == 0:
                     grid_html += (
                         '<div style="background:#F1EFE8;border-radius:8px;padding:10px 6px;'
@@ -476,12 +512,14 @@ with st.container(border=True):
     filtered["income_tier"] = filtered["income_tier"].fillna("Unknown")
     filtered["combo"] = filtered["risk_tier"] + " / " + filtered["income_tier"]
 
+    # Bivariate shading: income tier picks the hue, risk tier sets the opacity
     RISK_OPACITY = {"Critical": 0.95, "High": 0.75, "Medium": 0.55, "Low": 0.3}
 
     def _hex_to_rgb(hex_color):
         hex_color = hex_color.lstrip("#")
         return tuple(int(hex_color[i:i + 2], 16) for i in (0, 2, 4))
 
+    # Precompute every risk/income pairing. Counties with no income match fall back to grey
     BIVAR_COLOR_MAP = {"Unknown / Unknown": "rgba(150,150,150,0.4)"}
     for risk_lvl, opacity in RISK_OPACITY.items():
         BIVAR_COLOR_MAP[f"{risk_lvl} / Unknown"] = "rgba(150,150,150,0.4)"
@@ -489,6 +527,7 @@ with st.container(border=True):
             rr, gg, bb = _hex_to_rgb(hex_color)
             BIVAR_COLOR_MAP[f"{risk_lvl} / {income_lvl}"] = f"rgba({rr},{gg},{bb},{opacity})"
 
+    # Track combinations no county actually falls into so the legend can mark them N/A
     combo_counts = (
         county.merge(income_tier[["county", "income_tier"]], on="county", how="left")
         .groupby(["risk_tier", "income_tier"]).size()
@@ -501,6 +540,12 @@ with st.container(border=True):
     }
 
     def _add_map_legend(fig, color_map, risk_order, income_order, empty_combos=frozenset()):
+        """Draw the 4x3 bivariate key onto the map.
+
+        Plotly has no built-in legend for two combined variables, so this lays out a
+        rounded panel then places every swatch and label by paper coordinates. The
+        constants below are tuned to the 560px map height.
+        """
         pad = 0.014
         pad_left = 0.000
         pad_right = 0.012
@@ -524,6 +569,7 @@ with st.container(border=True):
         grid_y0 = grid_y1 - row_h * len(risk_order)
         box_y0 = grid_y0 - pad_bottom
 
+        # Rounded panel traced by hand, since shapes have no border-radius
         rx, ry = 0.010, 0.012
         legend_path = (
             f"M{box_x0 + rx},{box_y1} "
@@ -566,6 +612,7 @@ with st.container(border=True):
             xref="paper", yref="paper", showarrow=False,
             text="<b>Tier</b>", font=dict(size=22, color="#000000"),
         )
+        # Row labels down the side, then the swatch grid itself
         for i, risk_lvl in enumerate(risk_order):
             fig.add_annotation(
                 x=content_x0 + risk_title_w + row_label_w / 2, y=grid_y1 - row_h * (i + 0.5),
@@ -595,6 +642,7 @@ with st.container(border=True):
     card_col, chart_col = st.columns([1, 2], gap="small")
 
     with card_col:
+        # Summary cards beside the map
         n_critical = int((county["risk_tier"] == "Critical").sum())
         n_zero_stops = int((county["stops_per_100k"] == 0).sum())
         n_counties = county["county"].nunique()
@@ -609,6 +657,8 @@ with st.container(border=True):
         st.markdown(stat_card("Highest car dependency", top_county["county"], f"{top_county['cars_per_1000']:.0f} per 1,000", accent="#D55E00"), unsafe_allow_html=True)
 
     with chart_col:
+        # Choropleth needs a remote GeoJSON. If that fails we fall back to plotted
+        # points, so this flag tracks whether the preferred map actually rendered
         map_rendered = False
         MAP_CONFIG = {
             **PLOTLY_CONFIG,
@@ -618,15 +668,7 @@ with st.container(border=True):
             "modeBarButtonsToRemove": ["select2d", "lasso2d", "toImage"],
         }
 
-        CITY_COUNTY_ALIASES = {
-            "cork": ["cork city", "cork county"],
-            "dublin": ["dublin city", "south dublin", "fingal", "dun laoghaire-rathdown", "dún laoghaire-rathdown"],
-            "limerick": ["limerick city", "limerick county"],
-            "galway": ["galway city", "galway county"],
-            "waterford": ["waterford city", "waterford county"],
-            "tipperary": ["north tipperary", "south tipperary"],
-        }
-
+        # Counties the GeoJSON splits into separate city and county areas
         CITY_COUNTY_ALIASES = {
             "cork": ["cork city", "cork county"],
             "dublin": ["dublin city", "south dublin", "fingal", "dun laoghaire-rathdown", "dún laoghaire-rathdown"],
@@ -641,6 +683,8 @@ with st.container(border=True):
             name_key = next(k for k in geojson_data["features"][0]["properties"] if "name" in k.lower())
             gj_names = {f["properties"][name_key].strip().lower(): f["properties"][name_key] for f in geojson_data["features"]}
 
+            # Our data has one row per county but the GeoJSON splits several into
+            # city and county areas, so a county can expand to multiple shapes
             expanded_rows = []
             for _, row in filtered.iterrows():
                 county_key = row["county"].strip().lower()
@@ -653,6 +697,8 @@ with st.container(border=True):
 
             matched = pd.DataFrame(expanded_rows) if expanded_rows else pd.DataFrame()
 
+            # Only draw the choropleth if enough counties matched, otherwise a mostly
+            # blank map is worse than the point fallback
             if len(matched) >= max(5, len(filtered) // 2):
                 fig_map = px.choropleth_mapbox(
                     matched, geojson=geojson_data, locations="geo_name",
@@ -668,6 +714,8 @@ with st.container(border=True):
                     "Mayo": (53.850, -9.400), "Donegal": (54.653, -8.110), "Kerry": (52.157, -9.567),
                     "Tipperary": (52.473, -8.160),
                 }
+                # Labels drawn twice, a wider white pass under a black one, so county
+                # names stay legible over both light and dark fills
                 fig_map.add_trace(
                     go.Scattermapbox(
                         lat=[c[0] for c in LABEL_COUNTIES.values()], lon=[c[1] for c in LABEL_COUNTIES.values()],
@@ -687,9 +735,11 @@ with st.container(border=True):
                 fig_map = _add_map_legend(fig_map, BIVAR_COLOR_MAP, RISK_ORDER, INCOME_ORDER, empty_combos)
                 st.plotly_chart(fig_map, use_container_width=True, config=MAP_CONFIG)
                 map_rendered = True
+        # Network failure or a GeoJSON shape change should not take the page down
         except Exception:
             pass
 
+        # Fallback: bubbles at county centroids sized by car dependency
         if not map_rendered:
             COUNTY_COORDS = {
                 "Carlow": (52.836, -6.926), "Cavan": (53.990, -7.360), "Clare": (52.845, -8.986),
