@@ -13,3 +13,7 @@ seaborn>=0.13
 
 # API / data acquisition (notebook 00)
 requests>=2.31
+
+# Dashboard (streamlit_app/)
+streamlit>=1.38
+plotly>=5.22

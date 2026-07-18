@@ -1,95 +1,150 @@
-# Data Preprocessing & Cleaning — National Transport Decarbonisation Dashboard (Ireland)
+# National Transport Decarbonisation Dashboard for Ireland
 
-This stage turns the raw CSO / data.gov.ie extracts into a **governed,
-analysis-ready** dataset for the dashboard. All the work lives in one
-self-contained, executed notebook:
+A data pipeline and interactive dashboard tracking Ireland's progress toward its 2030 transport decarbonisation targets — built on nine official CSO PxStat / data.gov.ie datasets, following the Data Value Map (DVM) framework end to end: **Acquisition → Integration → Analysis (descriptive, predictive, prescriptive) → Delivery**.
 
-```
-notebooks/01_data_preprocessing_and_cleaning.ipynb
-```
+**Module:** IS6611 — Applied Research in Business Analytics | **Group 24**
 
-It follows **profile → clean → validate** for each source, then integrates them
-into an annual fact table with the three composite KPIs and writes everything to
-`data/processed/`.
+---
 
-## How to run
+## Table of contents
 
-1. Put the raw CSO CSVs in `data/raw/` (or set the `TDD_RAW_DIR` env var to point
-   elsewhere). Files are matched by prefix, so timestamped names work as-is.
-2. Open the notebook and **Kernel → Restart & Run All**.
+1. [What this project does](#what-this-project-does)
+2. [Repository structure](#repository-structure)
+3. [Data sources](#data-sources)
+4. [The three KPIs](#the-three-kpis)
+5. [Analytics pipeline (notebooks)](#analytics-pipeline-notebooks)
+6. [Modelling approach, at a glance](#modelling-approach-at-a-glance)
+7. [Running the pipeline](#running-the-pipeline)
+8. [Running the dashboard](#running-the-dashboard)
+9. [Data governance](#data-governance)
+10. [Team](#team)
 
-Requirements: `pandas>=2.0`, `numpy>=1.24` (see `requirements.txt`).
+---
+
+## What this project does
+
+Ireland's transport sector remains heavily car-dependent, and official statistics on car ownership, traffic volumes, public transport use, and fuel mix are scattered across separate CSO and government publications. This project brings nine of those datasets together into one governed pipeline, computes three composite KPIs that track Ireland's transport transition, forecasts each one forward to 2030 against the government's CAP 2030 targets, and — in its prescriptive tier — identifies which counties and income groups most need policy intervention to close the gap.
+
+The dashboard is aimed at three personas: a **Department of Transport Policy Analyst** tracking national progress, a **Local Authority Transport Planner** needing county-level detail, and a **Climate Action / ESG Officer** reporting on emissions trends.
 
 ## Repository structure
 
 ```
 .
-README.md
-requirements.txt
-dashboard/
-  exports/
-  powerbi/
-data/
-  external/
-  interim/
-  processed/
-  raw/
-    NaPTAN_Stop_Points.csv
-    PEA01.20260528T000539 2018-2025.csv
-    TEM12.20260527T230534 2015-2026.csv
-    TEM22.20260528T010512 2019-2021.csv
-    TEM23.20260528T000533 2022-2026.csv
-    THA17.20260528T000501 2018-2023.csv
-    THA18.20260528T000504 2018-2023.csv
-    THA25.20260528T000529 2019-2025.csv
-    TOA11.20260528T000523 2018-2025.csv
-docs/
-  DATA_DICTIONARY.md
-  DATA_QUALITY_REPORT.md
-  METHODOLOGY.md
-notebooks/
-  00_data_acquisition_guide.ipynb
-  01_data_preprocessing_and_cleaning.ipynb
-reports/
-src/
-  __init__.py
-  config.py
-  utils.py
+├── .streamlit/
+│   └── config.toml              # dashboard theme (colours, fonts)
+├── data/
+│   ├── raw/                     # untouched CSO / data.gov.ie extracts
+│   ├── interim/                 # scratch space used mid-pipeline
+│   ├── external/                # scratch space for external references
+│   ├── supplementary/           # county- and income-tier-level tables (notebook 01b, 03)
+│   ├── model_inputs/            # train/test splits per model (Holt-Winters, SARIMA, logistic, regression, K-Means)
+│   └── processed/               # analysis-ready CSVs — the ONLY tables the dashboard reads
+├── docs/
+│   ├── DATA_DICTIONARY.md
+│   ├── DATA_QUALITY_REPORT.md   # auto-regenerated on every notebook run
+│   └── METHODOLOGY.md
+├── notebooks/
+│   ├── 00_data_acquisition_guide.ipynb
+│   ├── 01_data_preprocessing_and_cleaning.ipynb
+│   ├── 01b_supplementary_cleaning.ipynb
+│   ├── 02_descriptive_analytics.ipynb
+│   ├── 03_predictive_analytics.ipynb
+│   └── 04_prescriptive_analytics.ipynb
+├── reports/
+│   ├── figures/                 # exported chart images for the write-up
+│   ├── model_comparison_metrics.csv
+│   ├── predictive_model_summary.csv
+│   └── excluded_models_justification.csv
+├── streamlit_app/                # the dashboard — see streamlit_app/README.md
+│   ├── router.py                 # entry point
+│   ├── data_loader.py
+│   ├── nav.py
+│   ├── style.py
+│   ├── requirements.txt
+│   └── pages/
+│       ├── 0_Home.py
+│       ├── 1_Overview.py
+│       ├── 2_Fuel_Transition.py
+│       ├── 3_Predictive_Analytics.py
+│       └── 4_Prescriptive_Simulator.py
+├── requirements.txt               # pipeline + dashboard dependencies
+└── README.md                      # this file
 ```
 
-## Outputs (`data/processed/`)
+## Data sources
 
-| File | Grain | Purpose |
+All nine datasets are official, publicly available, and licensed CC BY 4.0.
+
+| Table | Description | Source | Time range |
+|---|---|---|---|
+| PEA01 | Annual population estimates | CSO PxStat | 2018–2025 |
+| TOA11 | Luas passenger numbers | CSO PxStat / data.gov.ie | 2018–2025 |
+| THA25 | Public transport journeys (bus & rail) | CSO PxStat / data.gov.ie | 2019–2025 |
+| THA18 | Road traffic volumes, private cars | CSO PxStat | 2018–2023 |
+| THA17 | Road traffic volumes, all vehicles | CSO PxStat | 2018–2023 |
+| TEM12 | New vehicles licensed by fuel type | CSO PxStat | 2015–2026 |
+| TEM22 / TEM23 | Private car licensing (historical / current) | CSO PxStat | 2019–2026 |
+| NaPTAN | National Public Transport Access Nodes (stop locations) | data.gov.ie | static |
+| GPIIA05 | Median gross household income by county | CSO PxStat | 2022 |
+
+TEM22 and TEM23 are concatenated into one continuous series at their 2022 definitional boundary; the switch is documented, not silently smoothed over.
+
+## The three KPIs
+
+| KPI | Definition | Numerator source | 2030 government target |
+|---|---|---|---|
+| Car Dependency Index (CDI) | Private cars per 1,000 population | THA18 | 380 |
+| Public Transport Usage Index (PTUI) | Bus + rail + Luas journeys per capita | THA25 + TOA11 | 90 |
+| Transport Intensity Indicator (TII) | Vehicle-km travelled per capita | THA17 | 7,000 |
+
+The EV/PHEV share of new private car registrations is tracked separately against a CAP 2030 target of 50%.
+
+## Analytics pipeline (notebooks)
+
+| Notebook | Stage | What it produces |
 |---|---|---|
-| `fact_transport_annual.csv` | year | **Headline fact table** — population, car stock, PT journeys, vehicle-km, the 3 KPIs + YoY. Bind the dashboard to this. |
-| `dim_population_annual.csv` | year | National population (PEA01). |
-| `luas_journeys_annual.csv` | year | Luas journeys (TOA11). |
-| `public_transport_annual.csv` | year | Bus & rail from weekly THA25 + coverage flags. |
-| `private_car_stock_annual.csv` | year | Private-car population + car-km (THA18). |
-| `vehicle_km_annual.csv` | year | Total vehicle-km + fleet (THA17). |
-| `fuel_mix_new_private_cars_{monthly,annual}.csv` | month/year | Petrol→EV transition (TEM12) + BEV/PHEV & electrified shares. |
-| `private_car_registrations_{monthly,annual}.csv` | month/year | Continuous licensing series 2019–2026 (TEM22 ⊕ TEM23). |
-| `naptan_stops_clean.csv` | stop | Cleaned bus/rail stop layer for the optional map. |
+| `00_data_acquisition_guide` | Acquisition | Documents how each raw CSO table was pulled |
+| `01_data_preprocessing_and_cleaning` | Integration | Cleans all nine sources, builds the annual fact table and the three KPIs, estimates CO2 avoided |
+| `01b_supplementary_cleaning` | Integration | County-level and income-tier tables used by the prescriptive tier |
+| `02_descriptive_analytics` | Analysis (descriptive) | Baseline trend analysis, Covid structural-break annotation |
+| `03_predictive_analytics` | Analysis (predictive) | Holt-Winters, SARIMA, and logistic S-curve forecasts to 2030 |
+| `04_prescriptive_analytics` | Analysis (prescriptive) | County risk clustering, scenario modelling, Monte Carlo uncertainty, lever sensitivity |
 
-`docs/` holds the auto-generated `DATA_QUALITY_REPORT.md` (rewritten on every run)
-and `DATA_DICTIONARY.md`.
+Every notebook writes its outputs to `data/processed/` or `data/supplementary/` — the dashboard never computes anything itself, it only reads these files.
 
-## KPIs (proposal §4.3)
+## Modelling approach, at a glance
 
-| KPI | Definition | Sources |
-|---|---|---|
-| Car Dependency Index | private cars per 1,000 population | THA18 ÷ PEA01 |
-| Public Transport Usage Index | (bus+rail+Luas) journeys per capita | THA25 + TOA11 ÷ PEA01 |
-| Transport Intensity Indicator | total vehicle-km per capita | THA17 ÷ PEA01 |
+- **Holt-Winters exponential smoothing** for the three annual KPIs — chosen over ARIMA because the series has only ~5 annual points, too few for ARIMA to reliably estimate its own parameters.
+- **SARIMA** for the monthly public transport journey series and monthly fuel-mix series, where enough observations exist to model genuine seasonality.
+- **Logistic S-curve fitting** for national and income-tier EV/PHEV adoption, consistent with standard technology-diffusion modelling.
+- **K-Means clustering** to sort counties into Critical/High/Medium/Low car-dependency risk tiers, validated by silhouette score.
+- **Linear regression + leave-one-out cross-validation** to project each KPI under three named scenarios (Business-As-Usual, Moderate Intervention, Accelerated Transition), given only five annual training points.
+- **Monte Carlo simulation** (10,000 draws per scenario) to express 2030 projections as a range rather than a single number.
+- **Reverse-solve**, an algebraic inversion of the regression, answering "how much faster would this lever need to grow to hit the target alone?"
 
-## Cleaning decisions worth knowing
+Every genuine modelling limitation (small sample sizes, illustrative scenario multipliers, in-sample-only validation where a holdout isn't feasible) is documented directly in the relevant notebook rather than glossed over.
 
-- **No double-counting.** PEA01 ships overlapping age bands and TEM23 ships both
-  detail rows *and* `All …` subtotals — the notebook selects clean
-  partitions/aggregates explicitly rather than blind-summing.
-- **TEM22 → TEM23 bridge** is made continuous but transparent via
-  `source_table` / `definition` columns (boundary at 2022).
-- **Honest gaps.** 2019 rail is missing from THA25 → 2019 PT flagged bus-only;
-  partial 2026 flagged so totals aren't compared year-on-year.
-- THA17/THA18 are CSO *vehicle population & kilometres* tables (not roadside
-  counts); intensity uses the `Kilometres Travelled` measure (millions of km).
+## Running the pipeline
+
+```bash
+python -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+Run the notebooks in order (00 → 01 → 01b → 02 → 03 → 04), **Kernel → Restart & Run All** each time, since later notebooks depend on files written by earlier ones.
+
+## Running the dashboard
+
+See **[`streamlit_app/README.md`](streamlit_app/README.md)** for local setup and Streamlit Community Cloud deployment instructions.
+
+## Data governance
+
+- The CSO Transport Hub and CSO PxStat are treated as the single source of truth — no ad-hoc alternative estimates are used anywhere in the pipeline.
+- The dashboard's `data_loader.py` only ever reads from `data/processed/` and `data/supplementary/`. If a table is missing, it raises a clear error naming which notebook to rerun, rather than silently falling back to raw data.
+- Known data-quality caveats (e.g. 2019 public transport figures are bus-only since rail data wasn't published that year; the 2026 registration series is a partial year) are annotated directly on the relevant charts, not hidden.
+
+## Team
+
+Ganesh Arumugam · Arsh Khan · Khushi Dhargawe · Najma Taj · Norma Ramirez Canales · Purnimma Maheswari · Saurabh Upadhyay
