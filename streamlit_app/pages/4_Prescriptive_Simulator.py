@@ -21,7 +21,6 @@ scenarios = load_table("prescriptive_scenarios")
 monte_carlo = load_table("prescriptive_monte_carlo")
 reverse_solve = load_table("prescriptive_reverse_solve")
 county = load_table("county_recommendations")
-reg_gap = load_table("ev_registration_gap").sort_values("Year")
 
 KPI_DIRECTION = {"car_dependency_index": "down", "pt_usage_index": "up", "transport_intensity_index": "down"}
 SCENARIO_ORDER = ["Business-As-Usual", "Moderate Intervention", "Accelerated Transition"]
@@ -490,10 +489,21 @@ with st.container(border=True):
             rr, gg, bb = _hex_to_rgb(hex_color)
             BIVAR_COLOR_MAP[f"{risk_lvl} / {income_lvl}"] = f"rgba({rr},{gg},{bb},{opacity})"
 
-    def _add_map_legend(fig, color_map, risk_order, income_order):
-        pad = 0.012
-        risk_title_w, row_label_w = 0.042, 0.068
-        grid_w = 0.22
+    combo_counts = (
+        county.merge(income_tier[["county", "income_tier"]], on="county", how="left")
+        .groupby(["risk_tier", "income_tier"]).size()
+    )
+    empty_combos = {
+        f"{risk_lvl} / {income_lvl}"
+        for risk_lvl in RISK_OPACITY
+        for income_lvl in TIER_COLORS
+        if combo_counts.get((risk_lvl, income_lvl), 0) == 0
+    }
+
+    def _add_map_legend(fig, color_map, risk_order, income_order, empty_combos=frozenset()):
+        pad = 0.016
+        risk_title_w, row_label_w = 0.065, 0.085
+        grid_w = 0.26
         box_x0 = 0.005
         content_x0 = box_x0 + pad
         grid_x0 = content_x0 + risk_title_w + row_label_w
@@ -503,15 +513,15 @@ with st.container(border=True):
 
         box_y1 = 0.975
         content_y1 = box_y1 - pad
-        income_title_h, title_gap = 0.036, 0.010
-        col_header_h, header_gap = 0.034, 0.012
-        row_h = 0.052
+        income_title_h, title_gap = 0.055, 0.014
+        col_header_h, header_gap = 0.045, 0.016
+        row_h = 0.062
 
         grid_y1 = content_y1 - income_title_h - title_gap - col_header_h - header_gap
         grid_y0 = grid_y1 - row_h * len(risk_order)
         box_y0 = grid_y0 - pad
 
-        rx, ry = 0.010, 0.014
+        rx, ry = 0.012, 0.016
         legend_path = (
             f"M{box_x0 + rx},{box_y1} "
             f"L{box_x1 - rx},{box_y1} "
@@ -525,42 +535,51 @@ with st.container(border=True):
         )
         fig.add_shape(
             type="path", path=legend_path, xref="paper", yref="paper",
-            fillcolor="rgba(255,255,255,0.95)", line=dict(color="#B4B2A9", width=1.2),
+            fillcolor="rgba(255,255,255,0.97)", line=dict(color="#B4B2A9", width=1.2),
             layer="above",
         )
 
         fig.add_annotation(
             x=(grid_x0 + grid_x1) / 2, y=content_y1 - income_title_h / 2,
             xref="paper", yref="paper", showarrow=False,
-            text="<b>Income tier</b>", font=dict(size=13, color="#2C2C2A"),
+            text="<b>Income Tier</b>", font=dict(size=22, color="#000000"),
         )
         col_header_y = content_y1 - income_title_h - title_gap - col_header_h / 2
         for j, income_lvl in enumerate(income_order):
             fig.add_annotation(
                 x=grid_x0 + col_w * (j + 0.5), y=col_header_y,
                 xref="paper", yref="paper", showarrow=False,
-                text=f"<b>{income_lvl}</b>", font=dict(size=12, color="#2C2C2A"),
+                text=f"<b>{income_lvl}</b>", font=dict(size=14, color="#000000"),
             )
         fig.add_annotation(
             x=content_x0 + risk_title_w / 2, y=(grid_y0 + grid_y1) / 2,
             xref="paper", yref="paper", showarrow=False, textangle=-90,
-            text="<b>Risk tier</b>", font=dict(size=13, color="#2C2C2A"),
+            text="<b>Risk Tier</b>", font=dict(size=22, color="#000000"),
         )
         for i, risk_lvl in enumerate(risk_order):
             fig.add_annotation(
                 x=content_x0 + risk_title_w + row_label_w / 2, y=grid_y1 - row_h * (i + 0.5),
                 xref="paper", yref="paper", showarrow=False, xanchor="center",
-                text=f"<b>{risk_lvl}</b>", font=dict(size=11, color="#2C2C2A"),
+                text=f"<b>{risk_lvl}</b>", font=dict(size=13, color="#000000"),
             )
             for j, income_lvl in enumerate(income_order):
-                swatch = color_map.get(f"{risk_lvl} / {income_lvl}", "rgba(150,150,150,0.4)")
+                combo_key = f"{risk_lvl} / {income_lvl}"
+                is_empty = combo_key in empty_combos
+                swatch = "#F1EFE8" if is_empty else color_map.get(combo_key, "rgba(150,150,150,0.4)")
+                cx0, cy0 = grid_x0 + col_w * j + 0.005, grid_y1 - row_h * (i + 1) + 0.005
+                cx1, cy1 = grid_x0 + col_w * (j + 1) - 0.005, grid_y1 - row_h * i - 0.005
                 fig.add_shape(
                     type="rect", xref="paper", yref="paper",
-                    x0=grid_x0 + col_w * j + 0.005, y0=grid_y1 - row_h * (i + 1) + 0.005,
-                    x1=grid_x0 + col_w * (j + 1) - 0.005, y1=grid_y1 - row_h * i - 0.005,
-                    fillcolor=swatch, line=dict(color="#2C2C2A", width=0.6),
+                    x0=cx0, y0=cy0, x1=cx1, y1=cy1,
+                    fillcolor=swatch, line=dict(color="#B4B2A9" if is_empty else "black", width=0.5),
                     layer="above",
                 )
+                if is_empty:
+                    fig.add_annotation(
+                        x=(cx0 + cx1) / 2, y=(cy0 + cy1) / 2,
+                        xref="paper", yref="paper", showarrow=False,
+                        text="N/A", font=dict(size=10, color="#B4B2A9"),
+                    )
         return fig
     
     card_col, chart_col = st.columns([1, 2])
@@ -655,7 +674,7 @@ with st.container(border=True):
                 )
 
                 fig_map.update_layout(margin=dict(l=0, r=0, t=10, b=10), showlegend=False)
-                fig_map = _add_map_legend(fig_map, BIVAR_COLOR_MAP, RISK_ORDER, INCOME_ORDER)
+                fig_map = _add_map_legend(fig_map, BIVAR_COLOR_MAP, RISK_ORDER, INCOME_ORDER, empty_combos)
                 st.plotly_chart(fig_map, use_container_width=True, config=MAP_CONFIG)
                 map_rendered = True
         except Exception:
@@ -684,7 +703,7 @@ with st.container(border=True):
             )
             fig_map.update_traces(marker=dict(sizemin=10))
             fig_map.update_layout(margin=dict(l=0, r=0, t=10, b=10), showlegend=False)
-            fig_map = _add_map_legend(fig_map, BIVAR_COLOR_MAP, RISK_ORDER, INCOME_ORDER)
+            fig_map = _add_map_legend(fig_map, BIVAR_COLOR_MAP, RISK_ORDER, INCOME_ORDER, empty_combos)
             st.plotly_chart(fig_map, use_container_width=True, config=MAP_CONFIG)
 
     
