@@ -1,8 +1,13 @@
 # National Transport Decarbonisation Dashboard for Ireland
 
-A data pipeline and interactive dashboard tracking Ireland's progress toward its 2030 transport decarbonisation targets — built on nine official CSO PxStat / data.gov.ie datasets, following the Data Value Map (DVM) framework end to end: **Acquisition → Integration → Analysis (descriptive, predictive, prescriptive) → Delivery**.
+A data pipeline and interactive dashboard tracking Ireland's progress toward its 2030 transport decarbonisation targets - built on nine official CSO PxStat / data.gov.ie datasets, following the Data Value Map (DVM) framework end to end: **Acquisition → Integration → Analysis (descriptive, predictive, prescriptive) → Delivery**.
 
-**Module:** IS6611 — Applied Research in Business Analytics | **Group 24**
+**Module:** IS6611 - Applied Research in Business Analytics | **Group 24**
+
+## Running the dashboard
+See [streamlit_app/README.md](streamlit_app/README.md) for local setup and Streamlit Community Cloud deployment instructions.
+
+Access the live dashboard here: [IE Transports Decarbonization Tracker](https://ie-transports-decarbonization-tracker.streamlit.app/)
 
 ---
 
@@ -23,7 +28,7 @@ A data pipeline and interactive dashboard tracking Ireland's progress toward its
 
 ## What this project does
 
-Ireland's transport sector remains heavily car-dependent, and official statistics on car ownership, traffic volumes, public transport use, and fuel mix are scattered across separate CSO and government publications. This project brings nine of those datasets together into one governed pipeline, computes three composite KPIs that track Ireland's transport transition, forecasts each one forward to 2030 against the government's CAP 2030 targets, and — in its prescriptive tier — identifies which counties and income groups most need policy intervention to close the gap.
+Ireland's transport sector remains heavily car-dependent, and official statistics on car ownership, traffic volumes, public transport use, and fuel mix are scattered across separate CSO and government publications. This project brings nine of those datasets together into one governed pipeline, computes three composite KPIs that track Ireland's transport transition, forecasts each one forward to 2030 against the government's CAP 2030 targets, and - in its prescriptive tier - identifies which counties and income groups most need policy intervention to close the gap.
 
 The dashboard is aimed at three personas: a **Department of Transport Policy Analyst** tracking national progress, a **Local Authority Transport Planner** needing county-level detail, and a **Climate Action / ESG Officer** reporting on emissions trends.
 
@@ -39,7 +44,7 @@ The dashboard is aimed at three personas: a **Department of Transport Policy Ana
 │   ├── external/                # scratch space for external references
 │   ├── supplementary/           # county- and income-tier-level tables (notebook 01b, 03)
 │   ├── model_inputs/            # train/test splits per model (Holt-Winters, SARIMA, logistic, regression, K-Means)
-│   └── processed/               # analysis-ready CSVs — the ONLY tables the dashboard reads
+│   └── processed/               # analysis-ready CSVs - the ONLY tables the dashboard reads
 ├── docs/
 │   ├── DATA_DICTIONARY.md
 │   ├── DATA_QUALITY_REPORT.md   # auto-regenerated on every notebook run
@@ -56,7 +61,7 @@ The dashboard is aimed at three personas: a **Department of Transport Policy Ana
 │   ├── model_comparison_metrics.csv
 │   ├── predictive_model_summary.csv
 │   └── excluded_models_justification.csv
-├── streamlit_app/                # the dashboard — see streamlit_app/README.md
+├── streamlit_app/                # the dashboard - see streamlit_app/README.md
 │   ├── router.py                 # entry point
 │   ├── data_loader.py
 │   ├── nav.py
@@ -111,11 +116,11 @@ The EV/PHEV share of new private car registrations is tracked separately against
 | `03_predictive_analytics` | Analysis (predictive) | Holt-Winters, SARIMA, and logistic S-curve forecasts to 2030 |
 | `04_prescriptive_analytics` | Analysis (prescriptive) | County risk clustering, scenario modelling, Monte Carlo uncertainty, lever sensitivity |
 
-Every notebook writes its outputs to `data/processed/` or `data/supplementary/` — the dashboard never computes anything itself, it only reads these files.
+Every notebook writes its outputs to `data/processed/` or `data/supplementary/` - the dashboard never computes anything itself, it only reads these files.
 
 ## Modelling approach, at a glance
 
-- **Holt-Winters exponential smoothing** for the three annual KPIs — chosen over ARIMA because the series has only ~5 annual points, too few for ARIMA to reliably estimate its own parameters.
+- **Holt-Winters exponential smoothing** for the three annual KPIs - chosen over ARIMA because the series has only ~5 annual points, too few for ARIMA to reliably estimate its own parameters.
 - **SARIMA** for the monthly public transport journey series and monthly fuel-mix series, where enough observations exist to model genuine seasonality.
 - **Logistic S-curve fitting** for national and income-tier EV/PHEV adoption, consistent with standard technology-diffusion modelling.
 - **K-Means clustering** to sort counties into Critical/High/Medium/Low car-dependency risk tiers, validated by silhouette score.
@@ -141,7 +146,7 @@ See **[`streamlit_app/README.md`](streamlit_app/README.md)** for local setup and
 
 ## Data governance
 
-- The CSO Transport Hub and CSO PxStat are treated as the single source of truth — no ad-hoc alternative estimates are used anywhere in the pipeline.
+- The CSO Transport Hub and CSO PxStat are treated as the single source of truth - no ad-hoc alternative estimates are used anywhere in the pipeline.
 - The dashboard's `data_loader.py` only ever reads from `data/processed/` and `data/supplementary/`. If a table is missing, it raises a clear error naming which notebook to rerun, rather than silently falling back to raw data.
 - Known data-quality caveats (e.g. 2019 public transport figures are bus-only since rail data wasn't published that year; the 2026 registration series is a partial year) are annotated directly on the relevant charts, not hidden.
 
