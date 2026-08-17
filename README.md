@@ -22,7 +22,7 @@ Access the live dashboard here: [IE Transports Decarbonization Tracker](https://
 7. [Running the pipeline](#running-the-pipeline)
 8. [Running the dashboard](#running-the-dashboard)
 9. [Data governance](#data-governance)
-10. [Team](#team)
+10. [Team Members (Alphabetical order)](#team-Members-(Alphabetical-order))
 
 ---
 
