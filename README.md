@@ -154,4 +154,4 @@ See **[`streamlit_app/README.md`](streamlit_app/README.md)** for local setup and
 
 ## Team Members (Alphabetical order)
 
-Ganesh Arumugam · Arsh Khan · Khushi Dhargawe · Najma Taj · Norma Ramirez Canales · Purnimma Maheswari · Saurabh Upadhyay
+Arsh Khan · Ganesh Arumugam · Khushi Dhargawe · Najma Taj · Norma Ramirez Canales · Purnimma Maheswari · Saurabh Upadhyay
