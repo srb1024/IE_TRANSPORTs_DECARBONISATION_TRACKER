@@ -152,6 +152,6 @@ See **[`streamlit_app/README.md`](streamlit_app/README.md)** for local setup and
 - The dashboard's `data_loader.py` only ever reads from `data/processed/` and `data/supplementary/`. If a table is missing, it raises a clear error naming which notebook to rerun, rather than silently falling back to raw data.
 - Known data-quality caveats (e.g. 2019 public transport figures are bus-only since rail data wasn't published that year; the 2026 registration series is a partial year) are annotated directly on the relevant charts, not hidden.
 
-## Team
+## Team Members (Alphabetical order)
 
 Ganesh Arumugam · Arsh Khan · Khushi Dhargawe · Najma Taj · Norma Ramirez Canales · Purnimma Maheswari · Saurabh Upadhyay
