@@ -29,6 +29,27 @@ SCENARIO_ORDER = ["Business-As-Usual", "Moderate Intervention", "Accelerated Tra
 RISK_COLORS = {"Critical": "#D55E00", "High": "#E69F00", "Medium": "#F0E442", "Low": "#009E73"}
 GEOJSON_URL = "https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/ireland-counties.geojson"
 
+# CARTO basemaps now need a free API key or they stamp "API KEY REQUIRED" across the map.
+# The key lives in Streamlit secrets (CARTO_API_KEY), never in the code. With no key the
+# maps fall back to OpenStreetMap tiles, which need none.
+try:
+    CARTO_API_KEY = st.secrets.get("CARTO_API_KEY", "")
+except (FileNotFoundError, KeyError):
+    CARTO_API_KEY = ""
+MAP_STYLE = "white-bg" if CARTO_API_KEY else "open-street-map"
+
+
+def apply_basemap(fig):
+    """Add the keyed CARTO Positron raster tiles under the data when a key is set."""
+    if CARTO_API_KEY:
+        fig.update_layout(map_layers=[{
+            "below": "traces",
+            "sourcetype": "raster",
+            "source": [f"https://basemaps.cartocdn.com/rastertiles/voyager/{{z}}/{{x}}/{{y}}.png?key={CARTO_API_KEY}"],
+            "sourceattribution": "\u00a9 OpenStreetMap contributors \u00a9 CARTO",
+        }])
+    return fig
+
 
 def status(gap, target, direction):
     """Grade a KPI against its target. Within 20% of the target counts as At Risk."""
@@ -700,10 +721,10 @@ with st.container(border=True):
             # Only draw the choropleth if enough counties matched, otherwise a mostly
             # blank map is worse than the point fallback
             if len(matched) >= max(5, len(filtered) // 2):
-                fig_map = px.choropleth_mapbox(
+                fig_map = px.choropleth_map(
                     matched, geojson=geojson_data, locations="geo_name",
                     featureidkey=f"properties.{name_key}", color="combo",
-                    color_discrete_map=BIVAR_COLOR_MAP, mapbox_style="carto-positron",
+                    color_discrete_map=BIVAR_COLOR_MAP, map_style=MAP_STYLE,
                     zoom=5.6, center={"lat": 53.4, "lon": -8.7}, opacity=0.9,
                     hover_name="county", hover_data={"risk_tier": True, "income_tier": True, "combo": False},
                     height=560,
@@ -717,14 +738,14 @@ with st.container(border=True):
                 # Labels drawn twice, a wider white pass under a black one, so county
                 # names stay legible over both light and dark fills
                 fig_map.add_trace(
-                    go.Scattermapbox(
+                    go.Scattermap(
                         lat=[c[0] for c in LABEL_COUNTIES.values()], lon=[c[1] for c in LABEL_COUNTIES.values()],
                         mode="text", text=list(LABEL_COUNTIES.keys()),
                         textfont=dict(size=20, color="#FFFFFF"), hoverinfo="skip", showlegend=False,
                     )
                 )
                 fig_map.add_trace(
-                    go.Scattermapbox(
+                    go.Scattermap(
                         lat=[c[0] for c in LABEL_COUNTIES.values()], lon=[c[1] for c in LABEL_COUNTIES.values()],
                         mode="text", text=list(LABEL_COUNTIES.keys()),
                         textfont=dict(size=17, color="#000000"), hoverinfo="skip", showlegend=False,
@@ -733,11 +754,13 @@ with st.container(border=True):
 
                 fig_map.update_layout(margin=dict(l=0, r=0, t=10, b=10), showlegend=False)
                 fig_map = _add_map_legend(fig_map, BIVAR_COLOR_MAP, RISK_ORDER, INCOME_ORDER, empty_combos)
+                fig_map = apply_basemap(fig_map)
                 st.plotly_chart(fig_map, use_container_width=True, config=MAP_CONFIG)
                 map_rendered = True
         # Network failure or a GeoJSON shape change should not take the page down
-        except Exception:
-            pass
+        except Exception as exc:
+            # Fall back to points, but leave the reason in the app logs
+            print(f"County choropleth failed, using point fallback: {exc!r}")
 
         # Fallback: bubbles at county centroids sized by car dependency
         if not map_rendered:
@@ -755,15 +778,16 @@ with st.container(border=True):
             filtered["lat"] = filtered["county"].map(lambda c: COUNTY_COORDS.get(c, (None, None))[0])
             filtered["lon"] = filtered["county"].map(lambda c: COUNTY_COORDS.get(c, (None, None))[1])
             point_data = filtered.dropna(subset=["lat", "lon"])
-            fig_map = px.scatter_mapbox(
+            fig_map = px.scatter_map(
                 point_data, lat="lat", lon="lon", color="combo", color_discrete_map=BIVAR_COLOR_MAP,
                 size="cars_per_1000", size_max=32, hover_name="county",
                 hover_data={"risk_tier": True, "income_tier": True, "combo": False},
-                zoom=5.7, height=560, mapbox_style="carto-positron", center={"lat": 53.4, "lon": -8.7},
+                zoom=5.7, height=560, map_style=MAP_STYLE, center={"lat": 53.4, "lon": -8.7},
             )
             fig_map.update_traces(marker=dict(sizemin=10))
             fig_map.update_layout(margin=dict(l=0, r=0, t=10, b=10), showlegend=False)
             fig_map = _add_map_legend(fig_map, BIVAR_COLOR_MAP, RISK_ORDER, INCOME_ORDER, empty_combos)
+            fig_map = apply_basemap(fig_map)
             st.plotly_chart(fig_map, use_container_width=True, config=MAP_CONFIG)
 
     
