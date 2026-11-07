@@ -1,4 +1,4 @@
-# National Transport Decarbonisation Dashboard for Ireland
+# Ireland Transport Decarbonisation Tracker
 
 A data pipeline and interactive dashboard tracking Ireland's progress toward its 2030 transport decarbonisation targets - built on nine official CSO PxStat / data.gov.ie datasets, following the Data Value Map (DVM) framework end to end: **Acquisition → Integration → Analysis (descriptive, predictive, prescriptive) → Delivery**.
 
@@ -22,7 +22,7 @@ Access the live dashboard here: [IE Transports Decarbonization Tracker](https://
 7. [Running the pipeline](#running-the-pipeline)
 8. [Running the dashboard](#running-the-dashboard)
 9. [Data governance](#data-governance)
-10. [Team](#team)
+10. [Team](#team-members-alphabetical-order)
 
 ---
 
@@ -152,6 +152,6 @@ See **[`streamlit_app/README.md`](streamlit_app/README.md)** for local setup and
 - The dashboard's `data_loader.py` only ever reads from `data/processed/` and `data/supplementary/`. If a table is missing, it raises a clear error naming which notebook to rerun, rather than silently falling back to raw data.
 - Known data-quality caveats (e.g. 2019 public transport figures are bus-only since rail data wasn't published that year; the 2026 registration series is a partial year) are annotated directly on the relevant charts, not hidden.
 
-## Team
+## Team Members (Alphabetical order)
 
-Ganesh Arumugam · Arsh Khan · Khushi Dhargawe · Najma Taj · Norma Ramirez Canales · Purnimma Maheswari · Saurabh Upadhyay
+Arsh Khan · Ganesh Arumugam · Khushi Dhargawe · Najma Taj · Norma Ramirez Canales · Purnimma Maheswari · Saurabh Upadhyay
